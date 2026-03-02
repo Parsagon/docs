@@ -1,0 +1,113 @@
+---
+title: 'Quick Search'
+description: 'Execute a one-off search and receive results immediately, without creating a persistent Search object.'
+api: 'POST https://parsagon.io/api/events/v1/quick-search/'
+---
+
+The Quick Search endpoint runs an ad-hoc search and returns results directly. Use this for one-off queries where you don't need to retrieve or reference the results later.
+
+## Request body
+
+<ParamField body="categories" type="array" required>
+  Array of category IDs to include in the search results.
+</ParamField>
+
+<ParamField body="context" type="string">
+  Additional context for the AI to tailor the search and reporting (for example, your organization or focus area). Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="filter_prompt" type="string" required>
+  A list of policy topics to search for, one per line. Longer, descriptive phrases work best. Maximum 5000 characters.
+</ParamField>
+
+<ParamField body="date_range" type="object" required>
+  Time period to search within. Must cover no more than **72 hours (3 days)** — use either `start_date`/`end_date` or `duration_seconds` ≤ 259200.
+
+  <Expandable title="Fixed range">
+    <ParamField body="start_date" type="string">
+      ISO 8601 datetime (UTC). The earliest supported value is 90 days before the time of the request.
+    </ParamField>
+    <ParamField body="end_date" type="string">
+      ISO 8601 datetime (UTC).
+    </ParamField>
+  </Expandable>
+
+  <Expandable title="Relative duration">
+    <ParamField body="duration_seconds" type="number">
+      Positive number of seconds before "now" to search within (maximum 259200).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="search_results" type="array">
+  Array of search result objects.
+
+  <Expandable title="Search result fields">
+    <ResponseField name="url" type="string">
+      URL of the source document.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Title of the document.
+    </ResponseField>
+    <ResponseField name="date" type="string">
+      Date when Parsagon collected the document (ISO 8601, UTC). This may differ slightly from the original publication date.
+    </ResponseField>
+    <ResponseField name="text" type="string">
+      Full text (or main body) of the document.
+    </ResponseField>
+    <ResponseField name="summary" type="string">
+      AI-generated 1–2 sentence summary of the document.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      Type of document. Either `"ARTICLE"` (press releases, announcements, generic articles, and similar content) or `"LAW"` (bills and legislation).
+    </ResponseField>
+    <ResponseField name="extra_data" type="object">
+      For `"LAW"` documents, an object containing additional legislative metadata. May include `status`, `last_action`, and `last_action_date` — not all fields are present on every document. For non-`"LAW"` documents, this is usually empty.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if an error occurred; otherwise `null`.
+</ResponseField>
+
+<ResponseExample>
+```json Example response
+{
+  "search_results": [
+    {
+      "url": "https://legislature.maine.gov/LawMakerWeb/summary.asp?ID=280101474",
+      "title": "An Act to Lower Health Insurance Costs, Reduce Barriers to Health Care and Ensure Fair Prices for Health Care",
+      "text": "Be it enacted by the People of the State of Maine as follows:...",
+      "summary": "This act aims to lower health insurance costs, reduce barriers to health care, and ensure fair prices for health care services in Maine.",
+      "date": "2026-02-03",
+      "type": "LAW",
+      "extra_data": {
+        "last_action": "Committee on Health Coverage, Insurance and Financial Services suggested and ordered printed. The Bill was REFERRED to the Committee on HEALTH AND HUMAN SERVICES.",
+        "last_action_date": "2/3/2026"
+      }
+    }
+  ],
+  "error": null
+}
+```
+</ResponseExample>
+
+## Example (cURL)
+
+```bash
+curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categories": [1, 2],
+    "context": "User is a Government Relations Manager for an aerospace company in the UK.",
+    "filter_prompt": "Government funding and subsidies for aerospace R&D innovation\nWorkforce development and skills programs for aerospace manufacturing, engineering, and skilled labour\nRegulations governing aviation safety, environmental impact, and emissions standards",
+    "date_range": {
+      "start_date": "2025-11-14T08:00",
+      "end_date": "2025-11-17T08:00"
+    }
+  }'
+```

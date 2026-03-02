@@ -1,0 +1,65 @@
+---
+title: 'Retrieve advanced search'
+description: 'Retrieve the current state of a previously created Advanced Search, including raw results and the AI-generated monitoring report.'
+api: 'GET https://parsagon.io/api/events/v1/search/{search_id}'
+---
+
+Retrieve the current state of a previously created Advanced Search. Poll this endpoint after creating a search to check whether processing is complete.
+
+<Info>
+  Searches typically complete within **1–5 minutes**. Poll approximately **once every 15 seconds** until `search_results`, `edited_results`, and/or `error` are non-null.
+</Info>
+
+## Path parameters
+
+<ParamField path="search_id" type="string" required>
+  The `id` returned when the Search was created.
+</ParamField>
+
+## Response
+
+Returns a JSON object representing the Search, with the same fields as the `POST /search/` response.
+
+<ResponseField name="id" type="number | string">
+  Unique identifier for the Search.
+</ResponseField>
+
+<ResponseField name="categories" type="array">
+  Array of category IDs used in the search.
+</ResponseField>
+
+<ResponseField name="context" type="string">
+  Context provided in the request.
+</ResponseField>
+
+<ResponseField name="filter_prompt" type="string">
+  Filter prompt provided in the request.
+</ResponseField>
+
+<ResponseField name="date_range" type="object">
+  The date range used, containing either `start_date` and `end_date`, or `duration_seconds`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  Timestamp when the Search was created (ISO 8601, UTC).
+</ResponseField>
+
+<ResponseField name="search_results" type="array | null">
+  Raw search results when processing is complete, `null` otherwise. Each item has the same fields as [Quick Search](/api-reference/endpoint/quick-search) results.
+</ResponseField>
+
+<ResponseField name="edited_results" type="object | null">
+  AI-generated monitoring report when processing is complete, `null` otherwise. Includes the report in both HTML and Markdown formats.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if the search failed; otherwise `null`.
+</ResponseField>
+
+## Example (cURL)
+
+```bash
+curl -X GET "https://parsagon.io/api/events/v1/search/12345/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json"
+```

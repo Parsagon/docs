@@ -1,33 +1,101 @@
 ---
 title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+description: 'Programmatically retrieve political monitoring data and AI-generated monitoring reports using the Parsagon Search API.'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Overview
 
-## Welcome
+The Parsagon Search API gives you programmatic access to political monitoring data and AI-generated monitoring reports.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+All endpoints are relative to:
+
+```text
+https://parsagon.io/api/events/v1/
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All requests must be authenticated using an API key.
+
+Include your API key in the `Authorization` HTTP header, prefixed with `Token` and a space:
+
+```http
+Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
+```
+
+You can view and manage your API key by logging into Parsagon and visiting your [settings](https://parsagon.io/settings) page.
+
+## Content types
+
+Request bodies must be sent as JSON:
+
+```http
+Content-Type: application/json
+```
+
+Responses are returned as JSON.
+
+## Shared request schema
+
+Both **Quick Search** and **Advanced Search** use the same request body schema.
+
+<ParamField body="categories" type="array" required>
+  Array of category IDs to include in the search results.
+</ParamField>
+
+<ParamField body="context" type="string">
+  Additional context for the AI to tailor the search and reporting (for example, your organization or focus area). Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="filter_prompt" type="string" required>
+  A description of what to search for. This should be a list of policy topics, one per line — longer, descriptive phrases work best. Maximum 5000 characters.
+
+  ```text Example filter_prompt
+  Government funding and subsidies for aerospace R&D innovation
+  Workforce development and skills programs for aerospace manufacturing, engineering, and skilled labour
+  Regulations governing aviation safety, environmental impact, and emissions standards
+  ```
+</ParamField>
+
+<ParamField body="date_range" type="object" required>
+  Constrains the time period for documents. Specify either a fixed range (`start_date` and `end_date`) or a relative duration (`duration_seconds`).
+
+  <Expandable title="Fixed range">
+    <ParamField body="start_date" type="string">
+      ISO 8601 datetime (UTC). The earliest supported value is 90 days before the time of the request.
+    </ParamField>
+    <ParamField body="end_date" type="string">
+      ISO 8601 datetime (UTC).
+    </ParamField>
+  </Expandable>
+
+  <Expandable title="Relative duration">
+    <ParamField body="duration_seconds" type="number">
+      Positive number of seconds before "now" to search within.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Date range limits
+
+| Endpoint | Maximum window |
+|---|---|
+| Quick Search | 72 hours (3 days) — `duration_seconds` ≤ 259200 |
+| Advanced Search | 90 days — `duration_seconds` ≤ 7776000 |
+
+For all search types, the earliest supported `start_date` is **90 days** before the time of the request. Historical data older than 90 days is available upon request.
+
+**Example request body:**
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
+{
+  "categories": [1, 2],
+  "context": "User is a Government Relations Manager for an aerospace company in the UK.",
+  "filter_prompt": "Government funding and subsidies for aerospace R&D innovation\nWorkforce development and skills programs for aerospace manufacturing, engineering, and skilled labour\nRegulations governing aviation safety, environmental impact, and emissions standards",
+  "date_range": {
+    "duration_seconds": 259200
   }
-]
+}
 ```

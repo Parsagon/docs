@@ -1,0 +1,82 @@
+---
+title: 'Create advanced search'
+description: 'Create a persistent Search object processed asynchronously, with results and an AI-generated monitoring report available via polling.'
+api: 'POST https://parsagon.io/api/events/v1/search/'
+---
+
+The Advanced Search endpoint creates a persistent Search object. The server processes the search asynchronously — use the returned `id` to poll for completion.
+
+Unlike Quick Search, Advanced Search supports date ranges up to 90 days and produces an AI-generated monitoring report alongside raw results.
+
+## Request body
+
+<ParamField body="categories" type="array" required>
+  Array of category IDs to include in the search results.
+</ParamField>
+
+<ParamField body="context" type="string">
+  Additional context for the AI to tailor the search and reporting (for example, your organization or focus area). Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="filter_prompt" type="string" required>
+  A list of policy topics to search for, one per line. Longer, descriptive phrases work best. Maximum 5000 characters.
+</ParamField>
+
+<ParamField body="date_range" type="object" required>
+  Time period to search within. May cover up to **90 days** — use either `start_date`/`end_date` or `duration_seconds` ≤ 7776000.
+
+  <Expandable title="Fixed range">
+    <ParamField body="start_date" type="string">
+      ISO 8601 datetime (UTC). The earliest supported value is 90 days before the time of the request.
+    </ParamField>
+    <ParamField body="end_date" type="string">
+      ISO 8601 datetime (UTC).
+    </ParamField>
+  </Expandable>
+
+  <Expandable title="Relative duration">
+    <ParamField body="duration_seconds" type="number">
+      Positive number of seconds before "now" to search within (maximum 7776000).
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+On success, returns the created Search object. Processing is asynchronous — `search_results` and `edited_results` will be `null` until the search completes.
+
+<ResponseField name="id" type="number | string">
+  Unique identifier for the Search. Use this to [retrieve results](/api-reference/endpoint/get-search) once processing is complete.
+</ResponseField>
+
+<ResponseField name="categories" type="array">
+  Array of category IDs used in the search.
+</ResponseField>
+
+<ResponseField name="context" type="string">
+  Context provided in the request.
+</ResponseField>
+
+<ResponseField name="filter_prompt" type="string">
+  Filter prompt provided in the request.
+</ResponseField>
+
+<ResponseField name="date_range" type="object">
+  The date range used, containing either `start_date` and `end_date`, or `duration_seconds`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  Timestamp when the Search was created (ISO 8601, UTC).
+</ResponseField>
+
+<ResponseField name="search_results" type="array | null">
+  Raw search results once processing is complete. `null` if not yet finished. Each item has the same fields as [Quick Search](/api-reference/endpoint/quick-search) results.
+</ResponseField>
+
+<ResponseField name="edited_results" type="object | null">
+  AI-generated monitoring report once processing is complete. `null` if not yet finished. When available, includes the report in both HTML and Markdown formats.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if an error occurred; otherwise `null`.
+</ResponseField>
