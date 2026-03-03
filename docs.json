@@ -52,6 +52,11 @@
      "perplexity"
    ]
   },
+  "api": {
+    "playground": {
+      "display": "none"
+    }
+  },
   "redirects": [
     {
       "source": "/",
