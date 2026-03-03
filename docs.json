@@ -21,7 +21,8 @@
         "pages": [
           "api-reference/endpoint/quick-search",
           "api-reference/endpoint/advanced-search",
-          "api-reference/endpoint/get-search"
+          "api-reference/endpoint/get-search",
+          "api-reference/endpoint/category-sources"
         ]
       }
     ]
