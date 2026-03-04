@@ -73,6 +73,23 @@ The Quick Search endpoint runs an ad-hoc search and returns results directly. Us
   Error message if an error occurred; otherwise `null`.
 </ResponseField>
 
+<RequestExample>
+```bash cURL
+curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categories": [34],
+    "context": "User is a medical association",
+    "filter_prompt": "Healthcare policy and regulatory developments impacting health insurers and healthcare providers\nLegislation related to insurance mandates, consumer protections, and healthcare affordability",
+    "date_range": {
+      "start_date": "2026-02-02T08:00",
+      "end_date": "2026-02-04T08:00"
+    }
+  }'
+```
+</RequestExample>
+
 <ResponseExample>
 ```json Example response
 {
@@ -94,20 +111,3 @@ The Quick Search endpoint runs an ad-hoc search and returns results directly. Us
 }
 ```
 </ResponseExample>
-
-## Example (cURL)
-
-```bash
-curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
-  -H "Authorization: Token YOUR_API_KEY_HERE" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "categories": [1, 2],
-    "context": "User is a Government Relations Manager for an aerospace company in the UK.",
-    "filter_prompt": "Government funding and subsidies for aerospace R&D innovation\nWorkforce development and skills programs for aerospace manufacturing, engineering, and skilled labour\nRegulations governing aviation safety, environmental impact, and emissions standards",
-    "date_range": {
-      "start_date": "2025-11-14T08:00",
-      "end_date": "2025-11-17T08:00"
-    }
-  }'
-```

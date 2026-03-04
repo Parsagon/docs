@@ -80,3 +80,39 @@ On success, returns the created Search object. Processing is asynchronous — `s
 <ResponseField name="error" type="string | null">
   Error message if an error occurred; otherwise `null`.
 </ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://parsagon.io/api/events/v1/search/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "categories": [74],
+    "context": "User needs to keep track of financial services regulations in the UK",
+    "filter_prompt": "Policies related to financial market stability and supervision of financial institutions\nConsumer protection regulations related to financial products and services",
+    "date_range": {
+      "start_date": "2026-01-30T00:00",
+      "end_date": "2026-02-01T00:00"
+    }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "search_results": [
+    {
+      "url": "http://www.legislation.gov.uk/uksi/2026/74/made/data.htm",
+      "title": "The Financial Services and Markets Act 2000 (Regulated Activities) (Providing Targeted Support) (Amendment) Order 2026",
+      "text": "# **2026 No. 74** **FINANCIAL SERVICES AND MARKETS** The Financial Services and Markets Act 2000 (Regulated Activities) (Providing Targeted Support) (Amendment) Order 2026\n\n\n_Made_        -        -        -        - _28th January 2026_\n\n\n_Laid before Parliament_ _30th January 2026_\n\n\n_Coming into force in accordance with article 1_\n\n\nThe Treasury make this Order in exercise of the powers conferred by section 22(1) and (5) of, and paragraph 25 of Schedule 2 to, the Financial Services and Markets Act 2000...",
+      "summary": "This Order amends the Financial Services and Markets Act 2000 to provide targeted support within regulated activities, enabling the FCA to make rules, give guidance, and ensure consistent treatment across the financial regulatory framework.",
+      "date": "2026-01-31",
+      "type": "LAW",
+      "extra_data": {}
+    }
+  ],
+  "error": null
+}
+```
+</ResponseExample>
