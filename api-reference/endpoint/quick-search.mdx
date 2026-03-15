@@ -66,6 +66,9 @@ The Quick Search endpoint runs an ad-hoc search and returns results directly. Us
     <ResponseField name="extra_data" type="object">
       For `"LAW"` documents, an object containing additional legislative metadata. May include `status`, `last_action`, and `last_action_date` — not all fields are present on every document. For non-`"LAW"` documents, this is usually empty.
     </ResponseField>
+    <ResponseField name="search_topics" type="array">
+      List of integers, each being the zero-based index of a line in `filter_prompt` that is relevant to this search result.
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -104,7 +107,8 @@ curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
       "extra_data": {
         "last_action": "Committee on Health Coverage, Insurance and Financial Services suggested and ordered printed. The Bill was REFERRED to the Committee on HEALTH AND HUMAN SERVICES.",
         "last_action_date": "2/3/2026"
-      }
+      },
+      "search_topics": [0]
     }
   ],
   "error": null
