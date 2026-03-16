@@ -1,6 +1,6 @@
 ---
 title: 'Retrieve advanced search'
-description: 'Retrieve the current state of a previously created Advanced Search, including raw results and the AI-generated monitoring report.'
+description: 'Retrieve the current state of a previously created Advanced Search, including raw results and the AI-generated report.'
 api: 'GET https://parsagon.io/api/events/v1/search/{search_id}/'
 ---
 
@@ -49,7 +49,7 @@ Returns a JSON object representing the Search, with the same fields as the `POST
 </ResponseField>
 
 <ResponseField name="edited_results" type="object | null">
-  AI-generated monitoring report when processing is complete, `null` otherwise. Includes the report in both HTML and Markdown formats.
+  AI-generated report when processing is complete, `null` otherwise. Includes the report in both HTML and Markdown formats.
 </ResponseField>
 
 <ResponseField name="error" type="string | null">

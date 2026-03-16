@@ -1,12 +1,12 @@
 ---
 title: 'Create advanced search'
-description: 'Create a persistent Search object processed asynchronously, with results and an AI-generated monitoring report available via polling.'
+description: 'Create a persistent Search object processed asynchronously, with results and an AI-generated report available via polling.'
 api: 'POST https://parsagon.io/api/events/v1/search/'
 ---
 
 The Advanced Search endpoint creates a persistent Search object. The server processes the search asynchronously — use the returned `id` to poll for completion.
 
-Unlike Quick Search, Advanced Search supports date ranges up to 90 days and produces an AI-generated monitoring report alongside raw results.
+Unlike Quick Search, Advanced Search supports date ranges up to 90 days and produces an AI-generated report alongside raw results.
 
 ## Request body
 
@@ -74,7 +74,7 @@ On success, returns the created Search object. Processing is asynchronous — `s
 </ResponseField>
 
 <ResponseField name="edited_results" type="object | null">
-  AI-generated monitoring report once processing is complete. `null` if not yet finished. When available, includes the report in both HTML and Markdown formats.
+  AI-generated report once processing is complete. `null` if not yet finished. When available, includes the report in both HTML and Markdown formats.
 </ResponseField>
 
 <ResponseField name="error" type="string | null">

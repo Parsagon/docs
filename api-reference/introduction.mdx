@@ -24,6 +24,16 @@ We can ingest and deliver essentially any publicly available government material
 - Speeches
 - Mainstream business/political news
 
+## Methods
+
+The API provides three ways to retrieve data:
+
+**Quick Search** runs an ad-hoc search and returns results immediately. Use this for one-off queries over a window of up to 72 hours. No persistent object is created.
+
+**Advanced Search** creates a persistent Search object and processes it asynchronously. It supports date ranges up to 90 days and can produce an AI-generated report alongside raw results. Poll the returned `id` to retrieve results once processing is complete.
+
+**Get Category Sources** returns the full chronological list of all sources collected for a given data category, without any AI filtering or summarization. Use this to retrieve raw, unfiltered data for a specific category, covering up to the last 90 days.
+
 ## Base URL
 
 All endpoints are relative to:
