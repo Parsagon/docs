@@ -1,0 +1,70 @@
+---
+title: 'List searches'
+description: 'Retrieve a list of all searches made on your account, including both Quick Searches and Advanced Searches.'
+api: 'GET https://parsagon.io/api/events/v1/search/'
+---
+
+Returns all searches associated with your account, ordered from most recent to oldest. Both Quick Searches and Advanced Searches appear in this list and count equally toward your quota.
+
+## Response
+
+<ResponseField name="results" type="array">
+  Array of Search objects.
+
+  <Expandable title="Search object fields">
+    <ResponseField name="id" type="number | string">
+      Unique identifier for the Search.
+    </ResponseField>
+    <ResponseField name="categories" type="array">
+      Array of category IDs used in the search.
+    </ResponseField>
+    <ResponseField name="context" type="string">
+      Context provided in the request.
+    </ResponseField>
+    <ResponseField name="filter_prompt" type="string">
+      Filter prompt provided in the request.
+    </ResponseField>
+    <ResponseField name="labels" type="object">
+      Labels provided in the request.
+    </ResponseField>
+    <ResponseField name="date_range" type="object">
+      The date range used, containing either `start_date` and `end_date`, or `duration_seconds`.
+    </ResponseField>
+    <ResponseField name="created_at" type="string">
+      Timestamp when the Search was created (ISO 8601, UTC).
+    </ResponseField>
+    <ResponseField name="error" type="string | null">
+      Error message if the search failed; otherwise `null`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseExample>
+```json Example response
+{
+  "count": 844,
+  "next": "https://parsagon.io/api/events/v1/search/?limit=10&offset=10",
+  "previous": null,
+  "results": [
+    {
+      "id": 4973,
+      "categories": [2282],
+      "context": "User is a Government Relations Manager for a fintech company in Germany",
+      "filter_prompt": "Regulations and policies related to financial technology (fintech) industry development and oversight in Germany\nData privacy and cybersecurity laws impacting fintech companies, including compliance with GDPR and other data protection standards",
+      "date_range": {"duration_seconds": 604800, "end_date": null},
+      "created_at": "2026-03-25T12:55:13.665178Z",
+      "error": null,
+      "labels": {}
+    },
+    ...
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/events/v1/search/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

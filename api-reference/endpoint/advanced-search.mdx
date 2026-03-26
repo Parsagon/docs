@@ -22,6 +22,10 @@ Unlike Quick Search, Advanced Search supports date ranges up to 90 days and prod
   A list of policy topics to search for, one per line. Longer, descriptive phrases work best. Maximum 5000 characters.
 </ParamField>
 
+<ParamField body="labels" type="object">
+  A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
+</ParamField>
+
 <ParamField body="date_range" type="object" required>
   Time period to search within. May cover up to **90 days** — use either `start_date`/`end_date` or `duration_seconds` ≤ 7776000.
 
@@ -59,6 +63,10 @@ On success, returns the created Search object. Processing is asynchronous — `s
 
 <ResponseField name="filter_prompt" type="string">
   Filter prompt provided in the request.
+</ResponseField>
+
+<ResponseField name="labels" type="object">
+  Labels provided in the request.
 </ResponseField>
 
 <ResponseField name="date_range" type="object">

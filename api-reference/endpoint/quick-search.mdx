@@ -1,10 +1,10 @@
 ---
 title: 'Quick Search'
-description: 'Execute a one-off search and receive results immediately, without creating a persistent Search object.'
+description: 'Execute a search and receive results immediately, without needing to poll a persistent Search object for completion.'
 api: 'POST https://parsagon.io/api/events/v1/quick-search/'
 ---
 
-The Quick Search endpoint runs an ad-hoc search and returns results directly. Use this for one-off queries where you don't need to retrieve or reference the results later.
+The Quick Search endpoint runs a search synchronously and returns results directly in the response. A Search object is still created and counts toward your quota, but unlike Advanced Search you don't need to poll for results — they're returned immediately.
 
 ## Request body
 
@@ -18,6 +18,10 @@ The Quick Search endpoint runs an ad-hoc search and returns results directly. Us
 
 <ParamField body="filter_prompt" type="string" required>
   A list of policy topics to search for, one per line. Longer, descriptive phrases work best. Maximum 5000 characters.
+</ParamField>
+
+<ParamField body="labels" type="object">
+  A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
 </ParamField>
 
 <ParamField body="date_range" type="object" required>
