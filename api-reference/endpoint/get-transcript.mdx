@@ -1,4 +1,95 @@
 ---
-title: 'Get Transcript'
-openapi: 'GET /transcripts/v1/{id}'
+title: 'Get transcript'
+description: 'Retrieve detailed data for a single transcript, including full text and segment-level speaker and timing information.'
+api: 'GET https://parsagon.io/api/transcripts/v1/{id}'
 ---
+
+Returns detailed data for a single transcript, including the full text and segment-level speaker and timing information.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  Unique identifier of the transcript.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  Unique identifier for the transcript.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Title of the transcript.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  URL of the original audio or video source.
+</ResponseField>
+
+<ResponseField name="scheduled_time" type="string">
+  Scheduled time of the event in ISO 8601 format.
+</ResponseField>
+
+<ResponseField name="text" type="string">
+  Full transcript text.
+</ResponseField>
+
+<ResponseField name="transcript_status" type="string">
+  Current status of the transcript.
+</ResponseField>
+
+<ResponseField name="extra_data" type="object">
+  Additional transcript data, including segment-level details.
+
+  <Expandable title="extra_data fields">
+    <ResponseField name="segments" type="array">
+      List of transcript segments with speaker and timing information.
+
+      <Expandable title="Segment fields">
+        <ResponseField name="start" type="number">
+          Start time of the segment in seconds.
+        </ResponseField>
+        <ResponseField name="end" type="number">
+          End time of the segment in seconds.
+        </ResponseField>
+        <ResponseField name="text" type="string">
+          Transcribed text for this segment.
+        </ResponseField>
+        <ResponseField name="speaker" type="string">
+          Speaker identifier for this segment.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/transcripts/v1/abc123" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "id": 5103754,
+  "title": "Committee on the Internal Market and Consumer Protection Ordinary meeting",
+  "url": "https://multimedia.europarl.europa.eu/en/webstreaming/committee-on-internal-market-and-consumer-protection-ordinary-meeting_20260507-0900-COMMITTEE-IMCO",
+  "scheduled_time": "2026-05-07T07:00:00Z",
+  "text": "Anna Cavazzini:\r\n Good morning, dear colleagues. I suggest we start our IMCO session. Before I welcome our Commissioner for Consumer Protection...",
+  "extra_data": {
+    "segments": [
+      {
+        "text": " Good morning, dear colleagues. I suggest we start our IMCO session. Before I welcome our Commissioner for Consumer Protection...",
+        "start": 2.545,
+        "end": 149.511,
+        "speaker": "Anna Cavazzini"
+      },
+      ...
+    ]
+  },
+  "transcript_status": "FINISHED"
+}
+```
+</ResponseExample>

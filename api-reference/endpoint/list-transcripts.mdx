@@ -1,4 +1,89 @@
 ---
-title: 'List Transcripts'
-openapi: 'GET /transcripts/v1/categories/{category}/transcripts'
+title: 'List transcripts'
+description: 'Retrieve a paginated list of transcripts within a specified category.'
+api: 'GET https://parsagon.io/api/transcripts/v1/categories/{category}/transcripts'
 ---
+
+Returns a paginated list of transcripts within the specified category.
+
+## Path parameters
+
+<ParamField path="category" type="string" required>
+  The transcript category to list transcripts from.
+</ParamField>
+
+## Response
+
+Returns a paginated response containing transcript summary objects.
+
+<ResponseField name="count" type="integer">
+  Total number of transcripts matching the query.
+</ResponseField>
+
+<ResponseField name="next" type="string">
+  URL for the next page of results, or `null` if there are no more pages.
+</ResponseField>
+
+<ResponseField name="previous" type="string">
+  URL for the previous page of results, or `null` if this is the first page.
+</ResponseField>
+
+<ResponseField name="results" type="array">
+  List of transcript summary objects.
+
+  <Expandable title="Result fields">
+    <ResponseField name="id" type="string">
+      Unique identifier for the transcript.
+    </ResponseField>
+
+    <ResponseField name="title" type="string">
+      Title of the transcript.
+    </ResponseField>
+
+    <ResponseField name="scheduled_time" type="string">
+      Scheduled time of the event in ISO 8601 format.
+    </ResponseField>
+
+    <ResponseField name="url" type="string">
+      URL of the original audio or video source.
+    </ResponseField>
+
+    <ResponseField name="transcript_status" type="string">
+      Current status of the transcript.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/transcripts/v1/categories/2/transcripts/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "count": 17,
+  "next": "https://parsagon.io/api/transcripts/v1/categories/2/transcripts/?limit=10&offset=10",
+  "previous": null,
+  "results": [
+    {
+      "id": 5103756,
+      "title": "Committee on Civil Liberties, Justice and Home Affairs Ordinary meeting",
+      "scheduled_time": "2026-05-07T07:30:00Z",
+      "url": "https://multimedia.europarl.europa.eu/en/webstreaming/committee-on-civil-liberties-justice-and-home-affairs-ordinary-meeting_20260507-0900-COMMITTEE-LIBE",
+      "transcript_status": "FINISHED"
+    },
+    {
+      "id": 5103754,
+      "title": "Committee on the Internal Market and Consumer Protection Ordinary meeting",
+      "scheduled_time": "2026-05-07T07:00:00Z",
+      "url": "https://multimedia.europarl.europa.eu/en/webstreaming/committee-on-internal-market-and-consumer-protection-ordinary-meeting_20260507-0900-COMMITTEE-IMCO",
+      "transcript_status": "FINISHED"
+    },
+    ...
+  ]
+}
+```
+</ResponseExample>

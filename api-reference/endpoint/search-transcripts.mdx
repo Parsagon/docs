@@ -1,4 +1,91 @@
 ---
-title: 'Search Transcripts'
-openapi: 'GET /transcripts/v1/categories/{category}/search'
+title: 'Search transcripts'
+description: 'Search through transcripts within a specified category and date range.'
+api: 'GET https://parsagon.io/api/transcripts/v1/categories/{category}/search'
 ---
+
+Searches through transcripts within the specified category and date range.
+
+## Path parameters
+
+<ParamField path="category" type="string" required>
+  The transcript category to search within.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="q" type="string" required>
+  Search query string. Supports standard web search syntax, including:
+  - **Exact phrases** — wrap in quotes (e.g., `"phrase one"`)
+  - **Boolean operators** — combine terms with `OR` (e.g., `one OR two`)
+  - **Excluded words** — prefix with `-` (e.g., `-phrase`)
+
+  Search terms automatically match different grammatical forms (e.g., searching for "run" also matches "running" and "ran").
+</ParamField>
+
+<ParamField query="start_date" type="string" required>
+  Start of the date range to search within (ISO 8601 format). The date range between `start_date` and `end_date` must not exceed one week.
+</ParamField>
+
+<ParamField query="end_date" type="string" required>
+  End of the date range to search within (ISO 8601 format). The date range between `start_date` and `end_date` must not exceed one week.
+</ParamField>
+
+## Response
+
+Returns a list of transcript summary objects matching the search criteria, with highlighted keyword matches.
+
+<ResponseField name="results" type="array">
+  List of transcript summary objects matching the query.
+
+  <Expandable title="Result fields">
+    <ResponseField name="id" type="string">
+      Unique identifier for the transcript.
+    </ResponseField>
+
+    <ResponseField name="title" type="string">
+      Title of the transcript.
+    </ResponseField>
+
+    <ResponseField name="scheduled_time" type="string">
+      Scheduled time of the event in ISO 8601 format.
+    </ResponseField>
+
+    <ResponseField name="url" type="string">
+      URL of the original audio or video source.
+    </ResponseField>
+
+    <ResponseField name="transcript_status" type="string">
+      Current status of the transcript.
+    </ResponseField>
+
+    <ResponseField name="headline" type="string">
+      Excerpt from the transcript with matching search terms highlighted in bold.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/transcripts/v1/categories/2/search/?q=consumer&start_date=2026-05-07&end_date=2026-05-08" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "results": [
+    {
+      "id": 5103756,
+      "title": "Committee on Civil Liberties, Justice and Home Affairs Ordinary meeting",
+      "scheduled_time": "2026-05-07T07:30:00Z",
+      "url": "https://multimedia.europarl.europa.eu/en/webstreaming/committee-on-civil-liberties-justice-and-home-affairs-ordinary-meeting_20260507-0900-COMMITTEE-LIBE",
+      "transcript_status": "FINISHED",
+      "headline": "... caps requirements through targeted amendments of the GDPR record-keeping obligation, the digital omnibus with targeted amendments to the GDPR. And furthermore, I initiated my first three implementation dialogues on the simplification of **consumer** law in the digital environment  the GDPR, and only yesterday on the revision of the **Consumer** Protection Cooperation Regulation. So thank you, Chair and Honourable Members, for your attention, and thank you for your continued support ..."
+    },
+    ...
+  ]
+}
+```
+</ResponseExample>
