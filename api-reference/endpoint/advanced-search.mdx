@@ -22,8 +22,29 @@ Unlike Quick Search, Advanced Search supports date ranges up to 90 days and prod
   A list of policy topics to search for, one per line. Longer, descriptive phrases work best. Maximum 5000 characters.
 </ParamField>
 
+<ParamField body="edit_prompt" type="string">
+  Instructions for formatting or transforming the search results into `edited_results`. Maximum 5000 characters.
+</ParamField>
+
 <ParamField body="labels" type="object">
   A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
+</ParamField>
+
+<ParamField body="test" type="boolean">
+  Set to `true` to validate the request and create a Search with example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
+</ParamField>
+
+<ParamField body="test_data" type="object">
+  Custom dummy data to store when `test` is `true`. Use this to test downstream handling of `search_results` or custom `edited_results` formats.
+
+  <Expandable title="Test data fields">
+    <ParamField body="search_results" type="array">
+      Array of search result objects to store instead of Parsagon's built-in example results.
+    </ParamField>
+    <ParamField body="edited_results" type="any">
+      Custom edited output to store as `edited_results`. This value is not generated from `edit_prompt`; it is stored exactly as provided.
+    </ParamField>
+  </Expandable>
 </ParamField>
 
 <ParamField body="date_range" type="object" required>
@@ -118,10 +139,54 @@ curl -X POST "https://parsagon.io/api/events/v1/search/" \
       "date": "2026-01-31",
       "type": "LAW",
       "extra_data": {},
-      "search_topics": [0, 1]
+      "search_topics": [0, 1],
+      "jurisdictions": ["UK"]
     }
   ],
   "error": null
 }
 ```
 </ResponseExample>
+
+## Test mode
+
+Use `test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Advanced Search request.
+
+If you include `test_data.edited_results`, the value is returned by [Get Search](/api-reference/endpoint/get-search) as the Search object's `edited_results`. The API does not run `edit_prompt` in test mode.
+
+```json Example test request body
+{
+  "categories": [74],
+  "context": "User needs to keep track of financial services regulations in the UK",
+  "filter_prompt": "Policies related to financial market stability and supervision of financial institutions",
+  "edit_prompt": "Return a JSON report grouped by regulator",
+  "date_range": {
+    "duration_seconds": 604800
+  },
+  "test": true,
+  "test_data": {
+    "search_results": [
+      {
+        "url": "https://example.com/regulatory-update",
+        "title": "Example regulatory update",
+        "text": "Example source text for testing.",
+        "summary": "Example summary returned in test mode.",
+        "date": "2026-02-03",
+        "type": "ARTICLE",
+        "extra_data": {},
+        "search_topics": [0],
+        "jurisdictions": ["UK"]
+      }
+    ],
+    "edited_results": {
+      "report_title": "Example financial services report",
+      "items": [
+        {
+          "regulator": "Example regulator",
+          "summary": "Example custom report item."
+        }
+      ]
+    }
+  }
+}
+```

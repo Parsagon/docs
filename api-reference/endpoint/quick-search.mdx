@@ -24,6 +24,20 @@ The Quick Search endpoint runs a search synchronously and returns results direct
   A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
 </ParamField>
 
+<ParamField body="test" type="boolean">
+  Set to `true` to validate the request and return example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
+</ParamField>
+
+<ParamField body="test_data" type="object">
+  Custom dummy data to return when `test` is `true`. Quick Search only supports custom `search_results`; it does not support custom edited outputs.
+
+  <Expandable title="Test data fields">
+    <ParamField body="search_results" type="array">
+      Array of search result objects to return instead of Parsagon's built-in example results.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
 <ParamField body="date_range" type="object" required>
   Time period to search within. Must cover no more than **72 hours (3 days)** — use either `start_date`/`end_date` or `duration_seconds` ≤ 259200.
 
@@ -73,6 +87,9 @@ The Quick Search endpoint runs a search synchronously and returns results direct
     <ResponseField name="search_topics" type="array">
       List of integers, each being the zero-based index of a line in `filter_prompt` that is relevant to this search result.
     </ResponseField>
+    <ResponseField name="jurisdictions" type="array">
+      List of jurisdictions that apply to this result.
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -112,10 +129,42 @@ curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
         "last_action": "Committee on Health Coverage, Insurance and Financial Services suggested and ordered printed. The Bill was REFERRED to the Committee on HEALTH AND HUMAN SERVICES.",
         "last_action_date": "2/3/2026"
       },
-      "search_topics": [0]
+      "search_topics": [0],
+      "jurisdictions": ["US Maine"]
     }
   ],
   "error": null
 }
 ```
 </ResponseExample>
+
+## Test mode
+
+Use `test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Quick Search request.
+
+```json Example test request body
+{
+  "categories": [34],
+  "context": "User is a medical association",
+  "filter_prompt": "Healthcare policy and regulatory developments",
+  "date_range": {
+    "duration_seconds": 86400
+  },
+  "test": true,
+  "test_data": {
+    "search_results": [
+      {
+        "url": "https://example.com/policy-update",
+        "title": "Example policy update",
+        "text": "Example source text for testing.",
+        "summary": "Example summary returned in test mode.",
+        "date": "2026-02-03",
+        "type": "ARTICLE",
+        "extra_data": {},
+        "search_topics": [0],
+        "jurisdictions": ["US Maine"]
+      }
+    ]
+  }
+}
+```

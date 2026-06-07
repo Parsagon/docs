@@ -86,6 +86,23 @@ Both **Quick Search** and **Advanced Search** use the same request body schema.
   ```
 </ParamField>
 
+<ParamField body="test" type="boolean">
+  Set to `true` to validate the request and return or store example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
+</ParamField>
+
+<ParamField body="test_data" type="object">
+  Optional dummy data to use when `test` is `true`. If omitted, Parsagon returns built-in example search results.
+
+  <Expandable title="Test data fields">
+    <ParamField body="search_results" type="array">
+      Custom search results to use instead of the built-in examples.
+    </ParamField>
+    <ParamField body="edited_results" type="any">
+      Custom edited output for Advanced Search. Quick Search does not support `edited_results`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
 <ParamField body="date_range" type="object" required>
   Constrains the time period for documents. Specify either a fixed range (`start_date` and `end_date`) or a relative duration (`duration_seconds`).
 
@@ -123,6 +140,38 @@ For all search types, the earliest supported `start_date` is **90 days** before 
   "filter_prompt": "Government funding and subsidies for aerospace R&D innovation\nWorkforce development and skills programs for aerospace manufacturing, engineering, and skilled labour\nRegulations governing aviation safety, environmental impact, and emissions standards",
   "date_range": {
     "duration_seconds": 259200
+  }
+}
+```
+
+## Test mode
+
+Use `test: true` to test request validation and response handling without running a source search.
+
+- Quick Search can return built-in example `search_results` or custom `test_data.search_results`.
+- Advanced Search can store built-in example `search_results`, custom `test_data.search_results`, and custom `test_data.edited_results`.
+- `test_data` can only be used when `test` is `true`.
+- `categories`, `filter_prompt`, and `date_range` are still required and validated normally.
+
+```json Example test request body
+{
+  "categories": [1],
+  "context": "User is testing an API integration.",
+  "filter_prompt": "Example policy updates",
+  "date_range": {
+    "duration_seconds": 86400
+  },
+  "test": true,
+  "test_data": {
+    "search_results": [
+      {
+        "url": "https://example.com/policy-update",
+        "title": "Example policy update",
+        "summary": "Example summary returned in test mode.",
+        "date": "2026-02-03",
+        "type": "ARTICLE"
+      }
+    ]
   }
 }
 ```
