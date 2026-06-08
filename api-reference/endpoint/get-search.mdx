@@ -18,7 +18,11 @@ Retrieve the current state of a previously created Advanced Search. Poll this en
 
 ## Response
 
-Returns a JSON object representing the Search, with the same fields as the `POST /search/` response.
+Returns a JSON object representing the Search, including metadata, raw `search_results`, and `edited_results` when available.
+
+<Info>
+  For Advanced Search requests created with `is_test: true`, this endpoint returns the dummy `search_results` and `edited_results` stored at creation time.
+</Info>
 
 <ResponseField name="id" type="number | string">
   Unique identifier for the Search.
@@ -36,6 +40,18 @@ Returns a JSON object representing the Search, with the same fields as the `POST
   Filter prompt provided in the request.
 </ResponseField>
 
+<ResponseField name="edit_prompt" type="string">
+  Edit prompt provided in the request.
+</ResponseField>
+
+<ResponseField name="labels" type="object">
+  Labels provided in the request.
+</ResponseField>
+
+<ResponseField name="is_test" type="boolean">
+  Whether the Search was created in test mode.
+</ResponseField>
+
 <ResponseField name="date_range" type="object">
   The date range used, containing either `start_date` and `end_date`, or `duration_seconds`.
 </ResponseField>
@@ -48,8 +64,8 @@ Returns a JSON object representing the Search, with the same fields as the `POST
   Raw search results when processing is complete, `null` otherwise. Each item has the same fields as [Quick Search](/api-reference/endpoint/quick-search) results.
 </ResponseField>
 
-<ResponseField name="edited_results" type="object | null">
-  AI-generated report when processing is complete, `null` otherwise. Includes the report in both HTML and Markdown formats.
+<ResponseField name="edited_results" type="any | null">
+  AI-generated report when processing is complete, `null` otherwise. For test searches, this is the value provided in `test_data.edited_results`, if any.
 </ResponseField>
 
 <ResponseField name="error" type="string | null">

@@ -4,7 +4,7 @@ description: 'Create a persistent Search object processed asynchronously, with r
 api: 'POST https://parsagon.io/api/events/v1/search/'
 ---
 
-The Advanced Search endpoint creates a persistent Search object. The server processes the search asynchronously — use the returned `id` to poll for completion.
+The Advanced Search endpoint creates a persistent Search object. The server processes the search asynchronously. Use the returned `id` to poll for completion.
 
 Unlike Quick Search, Advanced Search supports date ranges up to 90 days and produces an AI-generated report alongside raw results.
 
@@ -23,19 +23,19 @@ Unlike Quick Search, Advanced Search supports date ranges up to 90 days and prod
 </ParamField>
 
 <ParamField body="edit_prompt" type="string">
-  Instructions for formatting or transforming the search results into `edited_results`. Maximum 5000 characters.
+  Optional instructions for formatting or transforming the search results into `edited_results`. Omit this field if you only need raw `search_results`. Maximum 5000 characters.
 </ParamField>
 
 <ParamField body="labels" type="object">
   A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
 </ParamField>
 
-<ParamField body="test" type="boolean">
+<ParamField body="is_test" type="boolean">
   Set to `true` to validate the request and create a Search with example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
 </ParamField>
 
 <ParamField body="test_data" type="object">
-  Custom dummy data to store when `test` is `true`. Use this to test downstream handling of `search_results` or custom `edited_results` formats.
+  Custom dummy data to store when `is_test` is `true`. Use this to test downstream handling of `search_results` or custom `edited_results` formats.
 
   <Expandable title="Test data fields">
     <ParamField body="search_results" type="array">
@@ -68,10 +68,10 @@ Unlike Quick Search, Advanced Search supports date ranges up to 90 days and prod
 
 ## Response
 
-On success, returns the created Search object. Processing is asynchronous — `search_results` and `edited_results` will be `null` until the search completes.
+On success, returns the created Search object. The create response does not include `search_results` or `edited_results`. Use the returned `id` to [retrieve the Search](/api-reference/endpoint/get-search) and read results.
 
 <ResponseField name="id" type="number | string">
-  Unique identifier for the Search. Use this to [retrieve results](/api-reference/endpoint/get-search) once processing is complete.
+  Unique identifier for the Search. Use this to [retrieve results](/api-reference/endpoint/get-search).
 </ResponseField>
 
 <ResponseField name="categories" type="array">
@@ -86,8 +86,16 @@ On success, returns the created Search object. Processing is asynchronous — `s
   Filter prompt provided in the request.
 </ResponseField>
 
+<ResponseField name="edit_prompt" type="string">
+  Edit prompt provided in the request.
+</ResponseField>
+
 <ResponseField name="labels" type="object">
   Labels provided in the request.
+</ResponseField>
+
+<ResponseField name="is_test" type="boolean">
+  Whether the Search was created in test mode.
 </ResponseField>
 
 <ResponseField name="date_range" type="object">
@@ -98,12 +106,20 @@ On success, returns the created Search object. Processing is asynchronous — `s
   Timestamp when the Search was created (ISO 8601, UTC).
 </ResponseField>
 
-<ResponseField name="search_results" type="array | null">
-  Raw search results once processing is complete. `null` if not yet finished. Each item has the same fields as [Quick Search](/api-reference/endpoint/quick-search) results.
+<ResponseField name="n_potential" type="number">
+  Estimated number of candidate results to process.
 </ResponseField>
 
-<ResponseField name="edited_results" type="object | null">
-  AI-generated report once processing is complete. `null` if not yet finished. When available, includes the report in both HTML and Markdown formats.
+<ResponseField name="n_processed" type="number">
+  Number of candidate results processed so far.
+</ResponseField>
+
+<ResponseField name="returned_up_to_idx" type="number">
+  Internal pagination position for additional result pages.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Public UUID for the Search.
 </ResponseField>
 
 <ResponseField name="error" type="string | null">
@@ -130,29 +146,34 @@ curl -X POST "https://parsagon.io/api/events/v1/search/" \
 <ResponseExample>
 ```json Example response
 {
-  "search_results": [
-    {
-      "url": "http://www.legislation.gov.uk/uksi/2026/74/made/data.htm",
-      "title": "The Financial Services and Markets Act 2000 (Regulated Activities) (Providing Targeted Support) (Amendment) Order 2026",
-      "text": "# **2026 No. 74** **FINANCIAL SERVICES AND MARKETS** The Financial Services and Markets Act 2000 (Regulated Activities) (Providing Targeted Support) (Amendment) Order 2026\n\n\n_Made_        -        -        -        - _28th January 2026_\n\n\n_Laid before Parliament_ _30th January 2026_\n\n\n_Coming into force in accordance with article 1_\n\n\nThe Treasury make this Order in exercise of the powers conferred by section 22(1) and (5) of, and paragraph 25 of Schedule 2 to, the Financial Services and Markets Act 2000...",
-      "summary": "This Order amends the Financial Services and Markets Act 2000 to provide targeted support within regulated activities, enabling the FCA to make rules, give guidance, and ensure consistent treatment across the financial regulatory framework.",
-      "date": "2026-01-31",
-      "type": "LAW",
-      "extra_data": {},
-      "search_topics": [0, 1],
-      "jurisdictions": ["UK"]
-    }
-  ],
-  "error": null
+  "id": 12345,
+  "categories": [74],
+  "context": "User needs to keep track of financial services regulations in the UK",
+  "filter_prompt": "Policies related to financial market stability and supervision of financial institutions\nConsumer protection regulations related to financial products and services",
+  "edit_prompt": "",
+  "created_at": "2026-02-01T12:00:00Z",
+  "language": "en-us",
+  "custom_summarize": false,
+  "n_potential": 0,
+  "n_processed": 0,
+  "error": null,
+  "date_range": {
+    "start_date": "2026-01-30T00:00:00+00:00",
+    "end_date": "2026-02-01T00:00:00+00:00"
+  },
+  "returned_up_to_idx": 0,
+  "uuid": "90df802d-c875-4dd7-830a-99242cfd74e0",
+  "labels": {},
+  "is_test": false
 }
 ```
 </ResponseExample>
 
 ## Test mode
 
-Use `test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Advanced Search request.
+Use `is_test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Advanced Search request.
 
-If you include `test_data.edited_results`, the value is returned by [Get Search](/api-reference/endpoint/get-search) as the Search object's `edited_results`. The API does not run `edit_prompt` in test mode.
+In test mode, `POST /search/` returns a dummy Search object with an `id`. Retrieve that Search with [Get Search](/api-reference/endpoint/get-search) to read the dummy `search_results` and `edited_results`. The API does not run `edit_prompt` in test mode. If you include `test_data.edited_results`, that value is stored exactly as provided.
 
 ```json Example test request body
 {
@@ -163,7 +184,7 @@ If you include `test_data.edited_results`, the value is returned by [Get Search]
   "date_range": {
     "duration_seconds": 604800
   },
-  "test": true,
+  "is_test": true,
   "test_data": {
     "search_results": [
       {
@@ -188,5 +209,46 @@ If you include `test_data.edited_results`, the value is returned by [Get Search]
       ]
     }
   }
+}
+```
+
+The create response contains the dummy Search object's `id`. Use that `id` to retrieve the stored dummy data:
+
+```bash Retrieve test Search
+curl -X GET "https://parsagon.io/api/events/v1/search/12345/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+
+```json Example test retrieval response
+{
+  "id": 12345,
+  "categories": [74],
+  "context": "User needs to keep track of financial services regulations in the UK",
+  "filter_prompt": "Policies related to financial market stability and supervision of financial institutions",
+  "edit_prompt": "Return a JSON report grouped by regulator",
+  "is_test": true,
+  "search_results": [
+    {
+      "url": "https://example.com/regulatory-update",
+      "title": "Example regulatory update",
+      "text": "Example source text for testing.",
+      "summary": "Example summary returned in test mode.",
+      "date": "2026-02-03",
+      "type": "ARTICLE",
+      "extra_data": {},
+      "search_topics": [0],
+      "jurisdictions": ["UK"]
+    }
+  ],
+  "edited_results": {
+    "report_title": "Example financial services report",
+    "items": [
+      {
+        "regulator": "Example regulator",
+        "summary": "Example custom report item."
+      }
+    ]
+  },
+  "error": null
 }
 ```

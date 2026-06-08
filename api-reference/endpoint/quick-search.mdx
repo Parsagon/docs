@@ -24,12 +24,12 @@ The Quick Search endpoint runs a search synchronously and returns results direct
   A dictionary of string key-value pairs for your own record keeping. Use this to attach metadata to the search, such as the project or team it belongs to (for example, `{"project": "tax-reform", "team": "policy"}`).
 </ParamField>
 
-<ParamField body="test" type="boolean">
+<ParamField body="is_test" type="boolean">
   Set to `true` to validate the request and return example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
 </ParamField>
 
 <ParamField body="test_data" type="object">
-  Custom dummy data to return when `test` is `true`. Quick Search only supports custom `search_results`; it does not support custom edited outputs.
+  Custom dummy data to return when `is_test` is `true`. Quick Search only supports custom `search_results`; it does not support custom edited outputs.
 
   <Expandable title="Test data fields">
     <ParamField body="search_results" type="array">
@@ -97,6 +97,10 @@ The Quick Search endpoint runs a search synchronously and returns results direct
   Error message if an error occurred; otherwise `null`.
 </ResponseField>
 
+<ResponseField name="is_test" type="boolean">
+  Whether the Search was created in test mode.
+</ResponseField>
+
 <RequestExample>
 ```bash cURL
 curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
@@ -133,14 +137,15 @@ curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
       "jurisdictions": ["US Maine"]
     }
   ],
-  "error": null
+  "error": null,
+  "is_test": false
 }
 ```
 </ResponseExample>
 
 ## Test mode
 
-Use `test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Quick Search request.
+Use `is_test: true` to test your integration without running a source search. The endpoint still validates the request body the same way it does for a normal Quick Search request.
 
 ```json Example test request body
 {
@@ -150,7 +155,7 @@ Use `test: true` to test your integration without running a source search. The e
   "date_range": {
     "duration_seconds": 86400
   },
-  "test": true,
+  "is_test": true,
   "test_data": {
     "search_results": [
       {

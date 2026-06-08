@@ -86,12 +86,12 @@ Both **Quick Search** and **Advanced Search** use the same request body schema.
   ```
 </ParamField>
 
-<ParamField body="test" type="boolean">
-  Set to `true` to validate the request and return or store example data without running a source search. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
+<ParamField body="is_test" type="boolean">
+  Set to `true` to validate the request without running a source search. Quick Search returns example data immediately. Advanced Search creates a dummy Search object; retrieve it with Get Search to read the dummy data. Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated normally.
 </ParamField>
 
 <ParamField body="test_data" type="object">
-  Optional dummy data to use when `test` is `true`. If omitted, Parsagon returns built-in example search results.
+  Optional dummy data to use when `is_test` is `true`. If omitted, Parsagon returns built-in example search results.
 
   <Expandable title="Test data fields">
     <ParamField body="search_results" type="array">
@@ -146,11 +146,11 @@ For all search types, the earliest supported `start_date` is **90 days** before 
 
 ## Test mode
 
-Use `test: true` to test request validation and response handling without running a source search.
+Use `is_test: true` to test request validation and response handling without running a source search.
 
 - Quick Search can return built-in example `search_results` or custom `test_data.search_results`.
-- Advanced Search can store built-in example `search_results`, custom `test_data.search_results`, and custom `test_data.edited_results`.
-- `test_data` can only be used when `test` is `true`.
+- Advanced Search returns a dummy Search object. Use its `id` with Get Search to retrieve built-in example `search_results`, custom `test_data.search_results`, and custom `test_data.edited_results`.
+- `test_data` can only be used when `is_test` is `true`.
 - `categories`, `filter_prompt`, and `date_range` are still required and validated normally.
 
 ```json Example test request body
@@ -161,7 +161,7 @@ Use `test: true` to test request validation and response handling without runnin
   "date_range": {
     "duration_seconds": 86400
   },
-  "test": true,
+  "is_test": true,
   "test_data": {
     "search_results": [
       {
