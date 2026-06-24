@@ -56,13 +56,19 @@ Never hardcode API keys. Read keys from environment variables, secret stores, or
 
 ## Endpoint selection
 
-Use **Quick Search** for one-off searches that need immediate results. The maximum search window is 72 hours.
+Use **Quick Search** (`POST /quick-search/`) for one-off searches that need immediate results. The maximum search window is 72 hours.
 
-Use **Advanced Search** when the integration needs a persistent Search object, asynchronous processing, a search window up to 90 days, or an AI-generated report.
+Quick Search returns results directly in the response. It still creates a Search object and counts toward quota.
 
-Use **Get Category Sources** when the integration needs raw chronological source material for a category without AI filtering or summarization.
+Use **Advanced Search** (`POST /search/`) when the integration needs a persistent Search object, asynchronous processing, a search window up to 90 days, or an AI-generated report.
 
-Use **Get Category Sources** to retrieve a comprehensive list of sources for a category.
+Use **Retrieve Advanced Search** (`GET /search/{search_id}/`) to poll for Advanced Search results.
+
+Use **List Searches** (`GET /search/`) to retrieve searches associated with the account.
+
+Use **Get Category Sources** (`GET /categories/{category_id}/sources/`) when the integration needs raw chronological source material for a category without AI filtering or summarization.
+
+Use **Get Category Sources** to retrieve a comprehensive list of sources for a category. Results are paginated and chronological, oldest first. The response includes `count`, `next`, `previous`, and `results`. Results cover up to the last 90 days, but some categories may have less than 90 days available.
 
 Use **Quick Search** or **Advanced Search** when the integration needs to filter sources, such as filtering news articles to only return articles that announce new laws or regulations.
 
@@ -85,9 +91,15 @@ Quick Search and Advanced Search use the same core request body:
 
 Use `categories` for category IDs.
 
+Parsagon does not keep a comprehensive public list of category IDs. Each user gets category IDs specific to their needs, and some categories may be custom-made for that user. If the category's contents are not clear, ask the user what kind of data lives in each category, such as legislation, regulations, news, general policy developments, or all of the above. Use that context to choose the right API call.
+
 Use `context` to tailor results to the customer, organization, or workflow. Keep it under 1000 characters.
 
 Use `filter_prompt` to describe what to search for. Prefer one policy topic per line. Keep it under 5000 characters.
+
+Use `edit_prompt` with Advanced Search when the integration needs `edited_results`. Keep it under 5000 characters. Omit `edit_prompt` if the integration only needs raw `search_results`.
+
+Use `labels` to attach string key-value metadata to a Quick Search or Advanced Search for record keeping, such as project, team, customer, or workflow IDs.
 
 Use `date_range.duration_seconds` for relative searches, or use `date_range.start_date` and `date_range.end_date` for fixed UTC ISO 8601 ranges.
 
@@ -103,11 +115,15 @@ The earliest supported `start_date` is 90 days before the request time.
 
 Use `is_test: true` to validate request handling without running a source search.
 
+Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated in test mode.
+
 Quick Search returns example search results immediately in test mode.
 
 Advanced Search creates a dummy Search object in test mode. Retrieve it with Get Search to inspect the dummy results.
 
 Use `test_data.search_results` when tests need deterministic sample results.
+
+Use `test_data.edited_results` to test downstream handling of custom Advanced Search `edited_results`. This value is stored exactly as provided. The API does not run `edit_prompt` in test mode.
 
 ```json
 {
@@ -144,11 +160,27 @@ Use retries for API requests, especially for transient network errors and 5xx re
 
 Set `Content-Type: application/json` for requests with JSON bodies.
 
-Handle asynchronous Advanced Search flows by polling Get Search until processing completes.
+Handle asynchronous Advanced Search flows by polling `GET /search/{search_id}/` until `search_results`, `edited_results`, or `error` is non-null.
+
+Advanced Searches typically complete within 1-5 minutes. Poll approximately once every 15 seconds.
 
 Write integration tests with `is_test: true` when possible.
 
 Surface Parsagon API errors with enough context to debug the request, but do not log API keys.
+
+## Search results
+
+Search result objects may include these fields:
+
+- `url`: URL of the source document.
+- `title`: Title of the document.
+- `date`: Date when Parsagon collected the document. This may differ slightly from the original publication date.
+- `text`: Full text or main body of the document.
+- `summary`: AI-generated 1-2 sentence summary of the document.
+- `type`: Document type. Usually `"ARTICLE"` for press releases, announcements, generic articles, and similar content, or `"LAW"` for bills and legislation.
+- `extra_data`: Additional metadata. Fields are not guaranteed and depend on the jurisdiction and source type. For legislation data, `extra_data` often but not always includes `bill`, `status`, `last_action`, and `last_action_date`; `bill` is the bill ID. For regulations, `extra_data` often but not always includes `agency_name`, `document_type`, `comment_deadline`, and `effective_date`.
+- `search_topics`: Zero-based indexes of `filter_prompt` lines relevant to the result.
+- `jurisdictions`: Jurisdictions that apply to the result.
 
 ## Coverage assessment
 
