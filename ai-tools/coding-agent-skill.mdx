@@ -1,0 +1,178 @@
+---
+title: "Coding agent skill"
+description: "Add Parsagon API guidance to your coding agent"
+icon: "robot"
+---
+
+Add this skill to your coding agent so it can build against the Parsagon Search API with the correct authentication, endpoint choices, request schema, and test mode behavior.
+
+## Where to install it
+
+Create one of these folders in your codebase:
+
+```text .agents path
+.agents/skills/parsagon-api/
+```
+
+```text Claude Code path
+.claude/skills/parsagon-api/
+```
+
+Then create a `SKILL.md` file inside that folder.
+
+## Skill file
+
+Copy this into `SKILL.md`:
+
+````markdown SKILL.md
+---
+name: parsagon-api
+description: Use when building, debugging, or reviewing integrations with the Parsagon Search API.
+---
+
+# Parsagon Search API
+
+Use this skill when code interacts with the Parsagon Search API.
+
+## Product context
+
+Parsagon provides programmatic access to a daily-updated dataset of legislation, regulations, government publications, and related monitoring data across 70+ countries.
+
+The API base URL is:
+
+```text
+https://parsagon.io/api/events/v1/
+```
+
+## Authentication
+
+Authenticate every request with an API key in the `Authorization` header.
+
+```http
+Authorization: Token <PARSAGON_API_KEY>
+```
+
+Never hardcode API keys. Read keys from environment variables, secret stores, or the host application's existing configuration system.
+
+## Endpoint selection
+
+Use **Quick Search** for one-off searches that need immediate results. The maximum search window is 72 hours.
+
+Use **Advanced Search** when the integration needs a persistent Search object, asynchronous processing, a search window up to 90 days, or an AI-generated report.
+
+Use **Get Category Sources** when the integration needs raw chronological source material for a category without AI filtering or summarization.
+
+Use **Get Category Sources** to retrieve a comprehensive list of sources for a category.
+
+Use **Quick Search** or **Advanced Search** when the integration needs to filter sources, such as filtering news articles to only return articles that announce new laws or regulations.
+
+Use **Advanced Search** when the integration needs to extract structured data from each source. For example, use the edit prompt to ask Parsagon to return JSON with specific fields about source contents.
+
+## Shared request schema
+
+Quick Search and Advanced Search use the same core request body:
+
+```json
+{
+  "categories": [1],
+  "context": "User is a Government Relations Manager for an aerospace company in the UK.",
+  "filter_prompt": "Government funding and subsidies for aerospace R&D innovation\nWorkforce development and skills programs for aerospace manufacturing, engineering, and skilled labour",
+  "date_range": {
+    "duration_seconds": 259200
+  }
+}
+```
+
+Use `categories` for category IDs.
+
+Use `context` to tailor results to the customer, organization, or workflow. Keep it under 1000 characters.
+
+Use `filter_prompt` to describe what to search for. Prefer one policy topic per line. Keep it under 5000 characters.
+
+Use `date_range.duration_seconds` for relative searches, or use `date_range.start_date` and `date_range.end_date` for fixed UTC ISO 8601 ranges.
+
+## Date range limits
+
+Quick Search supports a maximum window of 72 hours, so `duration_seconds` must be at most `259200`.
+
+Advanced Search supports a maximum window of 90 days, so `duration_seconds` must be at most `7776000`.
+
+The earliest supported `start_date` is 90 days before the request time.
+
+## Test mode
+
+Use `is_test: true` to validate request handling without running a source search.
+
+Quick Search returns example search results immediately in test mode.
+
+Advanced Search creates a dummy Search object in test mode. Retrieve it with Get Search to inspect the dummy results.
+
+Use `test_data.search_results` when tests need deterministic sample results.
+
+```json
+{
+  "categories": [1],
+  "context": "User is testing an API integration.",
+  "filter_prompt": "Example policy updates",
+  "date_range": {
+    "duration_seconds": 86400
+  },
+  "is_test": true,
+  "test_data": {
+    "search_results": [
+      {
+        "url": "https://example.com/policy-update",
+        "title": "Example policy update",
+        "summary": "Example summary returned in test mode.",
+        "date": "2026-02-03",
+        "type": "ARTICLE"
+      }
+    ]
+  }
+}
+```
+
+## Implementation guidance
+
+Prefer typed request and response models when the host project uses a typed language.
+
+Validate date windows before sending requests so users get local errors for unsupported ranges.
+
+Use request timeouts of at least 60 seconds.
+
+Use retries for API requests, especially for transient network errors and 5xx responses.
+
+Set `Content-Type: application/json` for requests with JSON bodies.
+
+Handle asynchronous Advanced Search flows by polling Get Search until processing completes.
+
+Write integration tests with `is_test: true` when possible.
+
+Surface Parsagon API errors with enough context to debug the request, but do not log API keys.
+
+## Coverage assessment
+
+When assessing whether jurisdictions are included in Parsagon data, account for different publication patterns across jurisdictions.
+
+Some governments and legislatures may be in recess for months and may not publish legislation or regulations during that time.
+
+Some jurisdictions naturally publish thousands of items per month, while others may only publish a handful of items for a given category.
+
+Do not treat low volume in a short date range as proof that a jurisdiction is missing from coverage.
+
+## Documentation
+
+Use the Parsagon API docs for endpoint-specific details:
+
+```text
+https://docs.parsagon.io/api-reference/introduction
+```
+````
+
+## Suggested project instruction
+
+Add this note to your agent's project instructions so it loads the skill when needed:
+
+```markdown
+When building, debugging, or reviewing code that calls the Parsagon Search API, use the `parsagon-api` skill.
+```
