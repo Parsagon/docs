@@ -72,7 +72,11 @@ Use **Get Category Sources** to retrieve a comprehensive list of sources for a c
 
 Use **Quick Search** or **Advanced Search** when the integration needs to filter sources, such as filtering news articles to only return articles that announce new laws or regulations.
 
+Do not use Quick Search or Advanced Search when the integration needs unfiltered results. If the integration needs all results, especially in chronological order, use Get Category Sources instead. Quick Search and Advanced Search are built for filtering and cannot reliably return every source in chronological order.
+
 Use **Advanced Search** when the integration needs to extract structured data from each source. For example, use the edit prompt to ask Parsagon to return JSON with specific fields about source contents.
+
+If the integration needs all results and then needs to edit or transform them, retrieve all data with Get Category Sources and transform the data in the host application. If the transformation would be very hard to implement locally, tell the user to reach out to Parsagon to discuss a custom transformation through a custom category.
 
 ## Shared request schema
 
