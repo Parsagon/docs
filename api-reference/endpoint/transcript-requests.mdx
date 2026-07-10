@@ -27,7 +27,7 @@ Hearings and debates are often several hours long, so transcription can take a f
 POST https://parsagon.io/api/transcripts/v1/requests/
 ```
 
-Use this endpoint to submit a public URL for transcription.
+Use this endpoint to submit a public URL for transcription. The response includes an `id`; use that ID to poll status and assign speaker names.
 
 <ParamField body="url" type="string" required>
   Public `https://` URL for the audio or video source to transcribe.
@@ -54,16 +54,12 @@ Use this endpoint to check processing status and retrieve transcript output when
 
 Transcription can take a few hours for long hearings or debates. Poll this endpoint about every 15 minutes rather than making frequent status requests.
 
-<ParamField path="id" type="integer" required>
-  Transcript request ID returned when you created the request.
+<ParamField path="id" type="string" required>
+  Transcript request ID returned when you created the request. This ID is a UUID-formatted string.
 </ParamField>
 
-<ResponseField name="id" type="integer">
-  Unique identifier for the transcript request.
-</ResponseField>
-
-<ResponseField name="uuid" type="string">
-  Stable UUID for the transcript request.
+<ResponseField name="id" type="string">
+  Unique transcript request ID. This ID is a UUID-formatted string.
 </ResponseField>
 
 <ResponseField name="url" type="string">
@@ -140,7 +136,7 @@ Transcription can take a few hours for long hearings or debates. Poll this endpo
 
 <RequestExample>
 ```bash cURL
-curl -X GET "https://parsagon.io/api/transcripts/v1/requests/123/" \
+curl -X GET "https://parsagon.io/api/transcripts/v1/requests/2fb8ec8f-6d55-4f5d-91e5-89ce6f617d58/" \
   -H "Authorization: Token YOUR_API_KEY_HERE"
 ```
 </RequestExample>
@@ -148,8 +144,7 @@ curl -X GET "https://parsagon.io/api/transcripts/v1/requests/123/" \
 <ResponseExample>
 ```json Example response
 {
-  "id": 123,
-  "uuid": "2fb8ec8f-6d55-4f5d-91e5-89ce6f617d58",
+  "id": "2fb8ec8f-6d55-4f5d-91e5-89ce6f617d58",
   "url": "https://example.gov/hearings/sample-public-meeting",
   "source": 5104001,
   "title": "Sample public meeting",
@@ -207,8 +202,8 @@ POST https://parsagon.io/api/transcripts/v1/requests/{id}/assign-speakers/
 
 Use this endpoint after `status` is `FINISHED` to map transcript speaker labels to the people you provide in `speaker_profiles`.
 
-<ParamField path="id" type="integer" required>
-  Transcript request ID.
+<ParamField path="id" type="string" required>
+  Transcript request ID returned when you created the request. This ID is a UUID-formatted string.
 </ParamField>
 
 <ParamField body="speaker_profiles" type="array" required>
@@ -231,7 +226,7 @@ Use this endpoint after `status` is `FINISHED` to map transcript speaker labels 
 
 <RequestExample>
 ```bash cURL
-curl -X POST "https://parsagon.io/api/transcripts/v1/requests/123/assign-speakers/" \
+curl -X POST "https://parsagon.io/api/transcripts/v1/requests/2fb8ec8f-6d55-4f5d-91e5-89ce6f617d58/assign-speakers/" \
   -H "Authorization: Token YOUR_API_KEY_HERE" \
   -H "Content-Type: application/json" \
   -d '{
