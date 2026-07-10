@@ -25,6 +25,7 @@
           "api-reference/endpoint/get-search",
           "api-reference/endpoint/list-searches",
           "api-reference/endpoint/category-sources",
+          "api-reference/endpoint/transcript-requests",
           "api-reference/endpoint/list-transcripts",
           "api-reference/endpoint/search-transcripts",
           "api-reference/endpoint/get-transcript"

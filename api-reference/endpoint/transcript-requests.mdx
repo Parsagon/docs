@@ -1,0 +1,277 @@
+---
+title: 'Transcript requests'
+description: 'Request a transcript for a public audio or video URL, check processing status, and assign speaker names.'
+---
+
+Transcript requests let you submit a public audio or video URL for transcription. Parsagon records the source, transcribes it, diarizes speakers, and returns the completed transcript through the API.
+
+Hearings and debates are often several hours long, so transcription can take a few hours to complete.
+
+## Workflow
+
+<Steps>
+  <Step title="Create a transcript request">
+    Submit the public source URL with `POST /api/transcripts/v1/requests/`.
+  </Step>
+  <Step title="Poll the request">
+    Use `GET /api/transcripts/v1/requests/{id}/` until `status` is `FINISHED` or `ERROR`. Poll about every 15 minutes.
+  </Step>
+  <Step title="Assign speaker names, if needed">
+    After the transcript is finished, send speaker profiles to `POST /api/transcripts/v1/requests/{id}/assign-speakers/`.
+  </Step>
+</Steps>
+
+## Create a request
+
+```http
+POST https://parsagon.io/api/transcripts/v1/requests/
+```
+
+Use this endpoint to submit a public URL for transcription.
+
+<ParamField body="url" type="string" required>
+  Public `https://` URL for the audio or video source to transcribe.
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://parsagon.io/api/transcripts/v1/requests/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.gov/hearings/sample-public-meeting"
+  }'
+```
+</RequestExample>
+
+## Get request status and results
+
+```http
+GET https://parsagon.io/api/transcripts/v1/requests/{id}/
+```
+
+Use this endpoint to check processing status and retrieve transcript output when it is ready.
+
+Transcription can take a few hours for long hearings or debates. Poll this endpoint about every 15 minutes rather than making frequent status requests.
+
+<ParamField path="id" type="integer" required>
+  Transcript request ID returned when you created the request.
+</ParamField>
+
+<ResponseField name="id" type="integer">
+  Unique identifier for the transcript request.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Stable UUID for the transcript request.
+</ResponseField>
+
+<ResponseField name="url" type="string">
+  Original URL submitted for transcription.
+</ResponseField>
+
+<ResponseField name="source" type="integer">
+  Internal source ID associated with the transcript data.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Title detected for the source, when available.
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Request-level status. Possible values include `QUEUED`, `RECORDING`, `TRANSCRIBING`, `DIARIZING`, `FINISHED`, `ERROR`, and `CANCELED`.
+</ResponseField>
+
+<ResponseField name="transcript_status" type="string">
+  Source-level transcript processing status.
+</ResponseField>
+
+<ResponseField name="text" type="string">
+  Full transcript text. This is available when transcription has completed. If speaker names have been assigned, the text uses the assigned names.
+</ResponseField>
+
+<ResponseField name="extra_data" type="object">
+  Structured transcript data.
+
+  <Expandable title="extra_data fields">
+    <ResponseField name="segments" type="array">
+      Segment-level transcript data.
+
+      <Expandable title="Segment fields">
+        <ResponseField name="start" type="number">
+          Start time of the segment in seconds, when available.
+        </ResponseField>
+
+        <ResponseField name="end" type="number">
+          End time of the segment in seconds, when available.
+        </ResponseField>
+
+        <ResponseField name="text" type="string">
+          Transcribed text for this segment.
+        </ResponseField>
+
+        <ResponseField name="speaker" type="string">
+          Speaker label or assigned speaker name for this segment.
+        </ResponseField>
+
+        <ResponseField name="speaker_profile" type="object">
+          Speaker profile attached after speaker assignment.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="speaker_profiles" type="array">
+  Speaker profiles currently stored on the request.
+</ResponseField>
+
+<ResponseField name="error" type="string">
+  Error message if the request failed.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  Time the request was created in ISO 8601 format.
+</ResponseField>
+
+<ResponseField name="updated_at" type="string">
+  Time the request was last updated in ISO 8601 format.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/transcripts/v1/requests/123/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "id": 123,
+  "uuid": "2fb8ec8f-6d55-4f5d-91e5-89ce6f617d58",
+  "url": "https://example.gov/hearings/sample-public-meeting",
+  "source": 5104001,
+  "title": "Sample public meeting",
+  "status": "FINISHED",
+  "transcript_status": "FINISHED",
+  "text": "Jane Doe:\nGood evening, everyone...",
+  "extra_data": {
+    "segments": [
+      {
+        "start": 12.4,
+        "end": 26.8,
+        "speaker": "Jane Doe",
+        "speaker_profile": {
+          "profile_id": "jane-doe",
+          "name": "Jane Doe"
+        },
+        "text": "Good evening, everyone..."
+      }
+    ]
+  },
+  "speaker_profiles": [
+    {
+      "id": "jane-doe",
+      "name": "Jane Doe",
+      "aliases": ["Committee Chair", "District One Representative"]
+    }
+  ],
+  "error": "",
+  "created_at": "2026-07-10T15:10:00Z",
+  "updated_at": "2026-07-10T15:45:00Z"
+}
+```
+</ResponseExample>
+
+## List your requests
+
+```http
+GET https://parsagon.io/api/transcripts/v1/requests/
+```
+
+Returns a paginated list of transcript requests created by your account.
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/transcripts/v1/requests/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
+
+## Assign speaker names
+
+```http
+POST https://parsagon.io/api/transcripts/v1/requests/{id}/assign-speakers/
+```
+
+Use this endpoint after `status` is `FINISHED` to map transcript speaker labels to the people you provide in `speaker_profiles`.
+
+<ParamField path="id" type="integer" required>
+  Transcript request ID.
+</ParamField>
+
+<ParamField body="speaker_profiles" type="array" required>
+  List of speaker profiles to assign.
+
+  <Expandable title="Speaker profile fields">
+    <ParamField body="id" type="string">
+      Stable identifier for the speaker profile. If your system uses numeric IDs, send them as strings.
+    </ParamField>
+
+    <ParamField body="name" type="string">
+      Display name for the speaker. Each profile must include either `id` or `name`.
+    </ParamField>
+
+    <ParamField body="aliases" type="array">
+      Optional names, titles, or transcript variants that may refer to the same person.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://parsagon.io/api/transcripts/v1/requests/123/assign-speakers/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "speaker_profiles": [
+      {
+        "id": "jane-doe",
+        "name": "Jane Doe",
+        "aliases": ["Committee Chair", "District One Representative"]
+      },
+      {
+        "id": "john-doe",
+        "name": "John Doe",
+        "aliases": ["Dr. Doe", "Planning Director"]
+      }
+    ]
+  }'
+```
+</RequestExample>
+
+## Speaker profile guidance
+
+Use stable string IDs and include aliases that may appear in the transcript.
+
+```json Example speaker profiles
+{
+  "speaker_profiles": [
+    {
+      "id": "alex-example",
+      "name": "Alex Example",
+      "aliases": ["Vice Chair", "District Two Representative"]
+    },
+    {
+      "id": "sam-sample",
+      "name": "Sam Sample",
+      "aliases": ["Dr. Sample", "Public Works Director", "Project Lead"]
+    }
+  ]
+}
+```
+
+<Tip>
+  Include roles, titles, honorifics, and alternate names as aliases. Speaker profile IDs must be strings, even if they come from numeric IDs in your system.
+</Tip>
