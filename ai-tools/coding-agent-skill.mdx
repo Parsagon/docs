@@ -66,9 +66,11 @@ Use **Retrieve Advanced Search** (`GET /search/{search_id}/`) to poll for Advanc
 
 Use **List Searches** (`GET /search/`) to retrieve searches associated with the account.
 
-Use **Get Category Sources** (`GET /categories/{category_id}/sources/`) when the integration needs raw chronological source material for a category without AI filtering or summarization.
+Use **Get Category Sources v2** (`GET https://parsagon.io/api/events/v2/categories/{category_id}/sources/`) when the integration needs raw source material for a category without AI filtering or summarization.
 
-Use **Get Category Sources** to retrieve a comprehensive list of sources for a category. Results are paginated and chronological, oldest first. The response includes `count`, `next`, `previous`, and `results`. Results cover up to the last 90 days, but some categories may have less than 90 days available.
+Use **Get Category Sources v2** to retrieve a comprehensive list of sources for a category. Results are cursor-paginated and reverse chronological, newest first. The response includes `next`, `previous`, and `results`; it does not include `count`. Results cover up to the last 90 days, but some categories may have less than 90 days available. Use `limit` to request up to `1000` sources per page, and follow the opaque `cursor` token from `next` or `previous` URLs to paginate.
+
+The legacy v1 category sources endpoint (`GET /categories/{category_id}/sources/` under the v1 base URL) uses limit/offset pagination and includes `count`. Prefer v2 for new integrations, especially for large categories.
 
 Use **Quick Search** or **Advanced Search** when the integration needs to filter sources, such as filtering news articles to only return articles that announce new laws or regulations.
 
