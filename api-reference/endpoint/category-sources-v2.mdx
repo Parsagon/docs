@@ -1,0 +1,67 @@
+---
+title: 'Get category sources v2'
+description: 'Retrieve sources collected for a given data category using cursor pagination, up to 90 days back.'
+api: 'GET https://parsagon.io/api/events/v2/categories/{category_id}/sources/'
+---
+
+Returns a reverse chronological list of sources collected for the specified category. Results cover up to the last 90 days (some categories may have less than 90 days available).
+
+This endpoint uses cursor pagination for faster responses on large categories. The v1 endpoint remains available at `/api/events/v1/categories/{category_id}/sources/` and uses limit/offset pagination with a `count` field.
+
+## Path parameters
+
+<ParamField path="category_id" type="number" required>
+  The ID of the data category to retrieve sources for.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number">
+  The maximum number of sources to return. Defaults to `100`; maximum `1000`.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Cursor token from the previous response's `next` or `previous` URL.
+</ParamField>
+
+## Response
+
+<ResponseField name="next" type="string | null">
+  URL for the next page of results, or `null` if this is the last page.
+</ResponseField>
+
+<ResponseField name="previous" type="string | null">
+  URL for the previous page of results, or `null` if this is the first page.
+</ResponseField>
+
+<ResponseField name="results" type="array">
+  Array of source objects in reverse chronological order (newest first). Each object has the same fields as a [Quick Search](/api-reference/endpoint/quick-search) result.
+</ResponseField>
+
+<ResponseExample>
+```json Example response
+{
+  "next": "https://parsagon.io/api/events/v2/categories/1377/sources/?cursor=cD0yMDI2LTAzLTAzKzEyJTNBMDAlM0EwMCUyQjAwJTNBMDA%3D&limit=100",
+  "previous": null,
+  "results": [
+    {
+      "url": "https://www.nps.gov/cure/learn/news/curecanti-national-recreation-area-seeks-input-on-upgrades-to-water-and-wastewater-systems.htm",
+      "title": "Curecanti National Recreation Area Seeks Input on Upgrades to Water and Wastewater Systems",
+      "text": "Gunnison, Colo. – The National Park Service seeks public input on a proposed project to replace the water and wastewater systems within Curecanti National Recreation Area.\n\nThe proposed project will focus on...",
+      "summary": "The National Park Service is requesting public feedback on plans to upgrade the aging water and wastewater infrastructure at Curecanti National Recreation Area's Elk Creek and Lake Fork Marinas and Campgrounds to improve efficiency and resilience.",
+      "date": "2026-03-03",
+      "type": "ARTICLE",
+      "extra_data": {},
+      "jurisdictions": ["US Colorado"]
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/events/v2/categories/1/sources/?limit=100" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
