@@ -24,6 +24,8 @@
           "api-reference/endpoint/advanced-search",
           "api-reference/endpoint/get-search",
           "api-reference/endpoint/list-searches",
+          "api-reference/endpoint/create-report",
+          "api-reference/endpoint/get-report",
           "api-reference/endpoint/category-sources",
           "api-reference/endpoint/category-sources-v2",
           "api-reference/endpoint/list-transcripts",

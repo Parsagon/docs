@@ -1,0 +1,166 @@
+---
+title: 'Create report'
+description: 'Create a persistent Report object processed asynchronously, with generated report content available via polling.'
+api: 'POST https://parsagon.io/api/events/v1/reports/'
+---
+
+The Create Report endpoint creates a persistent Report object. The server processes the report asynchronously. Use the returned `id` to poll for completion.
+
+## Request body
+
+<ParamField body="topic" type="string" required>
+  Topic for the report. Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="structure" type="string" required>
+  Instructions for the report structure. Maximum 5000 characters.
+</ParamField>
+
+<ParamField body="audience" type="string" required>
+  Intended audience for the report. Maximum 1000 characters.
+</ParamField>
+
+<ParamField body="length" type="string" required>
+  Approximate report length. Must be one of `SHORT_MEMO`, `EXEC_MEMO`, `MID_REPORT`, or `LONG_REPORT`.
+</ParamField>
+
+<ParamField body="is_test" type="boolean">
+  Set to `true` to validate the request and create a Report with example data without running report generation. Required fields such as `topic`, `structure`, `audience`, and `length` are still validated normally.
+</ParamField>
+
+<ParamField body="test_data" type="object">
+  Custom dummy data to store when `is_test` is `true`. Use this to test downstream handling of report results.
+
+  <Expandable title="Test data fields">
+    <ParamField body="result" type="object">
+      Custom report result to store instead of Parsagon's built-in example result. This value is stored exactly as provided.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+On success, returns the created Report object. For normal requests, `result` is `null` until processing completes. Use the returned `id` to [retrieve the Report](/api-reference/endpoint/get-report).
+
+<ResponseField name="id" type="number | string">
+  Unique identifier for the Report. Use this to retrieve results.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Report type. For this endpoint, the value is `BRIEF`.
+</ResponseField>
+
+<ResponseField name="fields" type="object">
+  Stored request fields, including `topic`, `structure`, `audience`, and numeric target `length`.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  Timestamp when the Report was created (ISO 8601, UTC).
+</ResponseField>
+
+<ResponseField name="finished_at" type="string | null">
+  Timestamp when report generation finished, or `null` while processing.
+</ResponseField>
+
+<ResponseField name="result" type="object | null">
+  Generated report content when processing is complete, or dummy report content in test mode.
+</ResponseField>
+
+<ResponseField name="progress" type="number">
+  Processing progress from `0` to `100`.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if report generation failed; otherwise `null`.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Public UUID for the Report.
+</ResponseField>
+
+<ResponseField name="is_test" type="boolean">
+  Whether the Report was created in test mode.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://parsagon.io/api/events/v1/reports/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic": "Financial services regulatory developments in the UK",
+    "structure": "Executive summary, key developments, and implications",
+    "audience": "Government relations team",
+    "length": "SHORT_MEMO"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Example response
+{
+  "id": 12345,
+  "type": "BRIEF",
+  "fields": {
+    "topic": "Financial services regulatory developments in the UK",
+    "structure": "Executive summary, key developments, and implications",
+    "audience": "Government relations team",
+    "length": 500
+  },
+  "created_at": "2026-02-01T12:00:00Z",
+  "finished_at": null,
+  "result": null,
+  "progress": 0,
+  "error": null,
+  "uuid": "90df802d-c875-4dd7-830a-99242cfd74e0",
+  "is_test": false
+}
+```
+</ResponseExample>
+
+## Test mode
+
+Use `is_test: true` to test your integration without running report generation. The endpoint still validates the request body the same way it does for a normal Create Report request.
+
+In test mode, `POST /reports/` returns a dummy Report object with `result`, `progress: 100`, and `finished_at` populated. If you include `test_data.result`, that value is stored exactly as provided.
+
+```json Example test request body
+{
+  "topic": "Financial services regulatory developments in the UK",
+  "structure": "Executive summary, key developments, and implications",
+  "audience": "Government relations team",
+  "length": "SHORT_MEMO",
+  "is_test": true,
+  "test_data": {
+    "result": {
+      "text": "# Example report\n\nExample report content returned in test mode.",
+      "html": "<h1>Example report</h1><p>Example report content returned in test mode.</p>",
+      "type": "html"
+    }
+  }
+}
+```
+
+```json Example test response
+{
+  "id": 12345,
+  "type": "BRIEF",
+  "fields": {
+    "topic": "Financial services regulatory developments in the UK",
+    "structure": "Executive summary, key developments, and implications",
+    "audience": "Government relations team",
+    "length": 500
+  },
+  "created_at": "2026-02-01T12:00:00Z",
+  "finished_at": "2026-02-01T12:00:00Z",
+  "result": {
+    "text": "# Example report\n\nExample report content returned in test mode.",
+    "html": "<h1>Example report</h1><p>Example report content returned in test mode.</p>",
+    "type": "html"
+  },
+  "progress": 100,
+  "error": null,
+  "uuid": "90df802d-c875-4dd7-830a-99242cfd74e0",
+  "is_test": true
+}
+```

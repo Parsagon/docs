@@ -4,7 +4,7 @@ description: "Add Parsagon API guidance to your coding agent"
 icon: "robot"
 ---
 
-Add this skill to your coding agent so it can build against the Parsagon Search API with the correct authentication, endpoint choices, request schema, and test mode behavior.
+Add this skill to your coding agent so it can build against the Parsagon API with the correct authentication, endpoint choices, request schema, and test mode behavior.
 
 ## Where to install it
 
@@ -27,12 +27,12 @@ Copy this into `SKILL.md`:
 ````markdown SKILL.md
 ---
 name: parsagon-api
-description: Use when building, debugging, or reviewing integrations with the Parsagon Search API.
+description: Use when building, debugging, or reviewing integrations with the Parsagon API.
 ---
 
-# Parsagon Search API
+# Parsagon API
 
-Use this skill when code interacts with the Parsagon Search API.
+Use this skill when code interacts with the Parsagon API.
 
 ## Product context
 
@@ -67,6 +67,8 @@ Use **Retrieve Advanced Search** (`GET /search/{search_id}/`) to poll for Advanc
 Use **List Searches** (`GET /search/`) to retrieve searches associated with the account.
 
 Use **Get Category Sources v2** (`GET https://parsagon.io/api/events/v2/categories/{category_id}/sources/`) when the integration needs raw source material for a category without AI filtering or summarization.
+
+Use **Create Report** (`POST /reports/`) when the integration needs to generate a standalone AI report from a topic, structure, audience, and target length. Use **Retrieve Report** (`GET /reports/{report_id}/`) to poll until `result` or `error` is non-null.
 
 Use **Get Category Sources v2** to retrieve a comprehensive list of sources for a category. Results are cursor-paginated and reverse chronological, newest first. The response includes `next`, `previous`, and `results`; it does not include `count`. Results cover up to the last 90 days, but some categories may have less than 90 days available. Use `limit` to request up to `1000` sources per page, and follow the opaque `cursor` token from `next` or `previous` URLs to paginate.
 
@@ -119,9 +121,9 @@ The earliest supported `start_date` is 90 days before the request time.
 
 ## Test mode
 
-Use `is_test: true` to validate request handling without running a source search.
+Use `is_test: true` to validate request handling without running a source search or report generation task.
 
-Required fields such as `categories`, `filter_prompt`, and `date_range` are still validated in test mode.
+Required fields are still validated in test mode. For Search endpoints, this includes `categories`, `filter_prompt`, and `date_range`. For Create Report, this includes `topic`, `structure`, `audience`, and `length`.
 
 Quick Search returns example search results immediately in test mode.
 
@@ -130,6 +132,8 @@ Advanced Search creates a dummy Search object in test mode. Retrieve it with Get
 Use `test_data.search_results` when tests need deterministic sample results.
 
 Use `test_data.edited_results` to test downstream handling of custom Advanced Search `edited_results`. This value is stored exactly as provided. The API does not run `edit_prompt` in test mode.
+
+Use `test_data.result` to test downstream handling of custom Create Report output. This value is stored exactly as provided.
 
 ```json
 {
@@ -154,6 +158,23 @@ Use `test_data.edited_results` to test downstream handling of custom Advanced Se
 }
 ```
 
+```json
+{
+  "topic": "Example policy report",
+  "structure": "Executive summary and key developments",
+  "audience": "Policy team",
+  "length": "SHORT_MEMO",
+  "is_test": true,
+  "test_data": {
+    "result": {
+      "text": "# Example report\n\nExample report content returned in test mode.",
+      "html": "<h1>Example report</h1><p>Example report content returned in test mode.</p>",
+      "type": "html"
+    }
+  }
+}
+```
+
 ## Implementation guidance
 
 Prefer typed request and response models when the host project uses a typed language.
@@ -167,6 +188,8 @@ Use retries for API requests, especially for transient network errors and 5xx re
 Set `Content-Type: application/json` for requests with JSON bodies.
 
 Handle asynchronous Advanced Search flows by polling `GET /search/{search_id}/` until `search_results`, `edited_results`, or `error` is non-null.
+
+Handle asynchronous Report flows by polling `GET /reports/{report_id}/` until `result` or `error` is non-null.
 
 Advanced Searches typically complete within 1-5 minutes. Poll approximately once every 15 seconds.
 
@@ -212,5 +235,5 @@ https://docs.parsagon.io/api-reference/introduction
 Add this note to your agent's project instructions so it loads the skill when needed:
 
 ```markdown
-When building, debugging, or reviewing code that calls the Parsagon Search API, use the `parsagon-api` skill.
+When building, debugging, or reviewing code that calls the Parsagon API, use the `parsagon-api` skill.
 ```

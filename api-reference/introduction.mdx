@@ -146,12 +146,13 @@ For all search types, the earliest supported `start_date` is **90 days** before 
 
 ## Test mode
 
-Use `is_test: true` to test request validation and response handling without running a source search.
+Use `is_test: true` to test request validation and response handling without running a source search or report generation task.
 
 - Quick Search can return built-in example `search_results` or custom `test_data.search_results`.
 - Advanced Search returns a dummy Search object. Use its `id` with Get Search to retrieve built-in example `search_results`, custom `test_data.search_results`, and custom `test_data.edited_results`.
+- Create Report returns a dummy Report object with built-in example `result` data or custom `test_data.result`.
 - `test_data` can only be used when `is_test` is `true`.
-- `categories`, `filter_prompt`, and `date_range` are still required and validated normally.
+- Required fields are still validated normally. For Search endpoints, this includes `categories`, `filter_prompt`, and `date_range`. For Create Report, this includes `topic`, `structure`, `audience`, and `length`.
 
 ```json Example test request body
 {
@@ -172,6 +173,23 @@ Use `is_test: true` to test request validation and response handling without run
         "type": "ARTICLE"
       }
     ]
+  }
+}
+```
+
+```json Example report test request body
+{
+  "topic": "Financial services regulatory developments in the UK",
+  "structure": "Executive summary, key developments, and implications",
+  "audience": "Government relations team",
+  "length": "SHORT_MEMO",
+  "is_test": true,
+  "test_data": {
+    "result": {
+      "text": "# Example report\n\nExample report content returned in test mode.",
+      "html": "<h1>Example report</h1><p>Example report content returned in test mode.</p>",
+      "type": "html"
+    }
   }
 }
 ```

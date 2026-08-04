@@ -1,0 +1,72 @@
+---
+title: 'Retrieve report'
+description: 'Retrieve the current state of a previously created Report, including generated report content when available.'
+api: 'GET https://parsagon.io/api/events/v1/reports/{report_id}/'
+---
+
+Retrieve the current state of a previously created Report. Poll this endpoint after creating a report to check whether processing is complete.
+
+<Info>
+  Reports are processed asynchronously. Poll until `result` or `error` is non-null.
+</Info>
+
+## Path parameters
+
+<ParamField path="report_id" type="string" required>
+  The `id` returned when the Report was created.
+</ParamField>
+
+## Response
+
+Returns a JSON object representing the Report, including metadata and generated content when available.
+
+<Info>
+  For Reports created with `is_test: true`, this endpoint returns the dummy `result` stored at creation time.
+</Info>
+
+<ResponseField name="id" type="number | string">
+  Unique identifier for the Report.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Report type.
+</ResponseField>
+
+<ResponseField name="fields" type="object">
+  Stored request fields.
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  Timestamp when the Report was created (ISO 8601, UTC).
+</ResponseField>
+
+<ResponseField name="finished_at" type="string | null">
+  Timestamp when report generation finished, or `null` while processing.
+</ResponseField>
+
+<ResponseField name="result" type="object | null">
+  Generated report content when processing is complete, `null` otherwise. For test reports, this is the built-in example result or the value provided in `test_data.result`.
+</ResponseField>
+
+<ResponseField name="progress" type="number">
+  Processing progress from `0` to `100`.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if report generation failed; otherwise `null`.
+</ResponseField>
+
+<ResponseField name="uuid" type="string">
+  Public UUID for the Report.
+</ResponseField>
+
+<ResponseField name="is_test" type="boolean">
+  Whether the Report was created in test mode.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/events/v1/reports/12345/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
