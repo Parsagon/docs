@@ -52,6 +52,14 @@ Include your API key in the `Authorization` HTTP header, prefixed with `Token` a
 Authorization: Token 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
 ```
 
+Alternatively, pass your API key in the `X-API-KEY` header without a prefix:
+
+```http
+X-API-KEY: 9944b09199c62bcf9418ad846dd0e4bbdfc6ee4b
+```
+
+You only need one of the two headers. Use whichever fits your HTTP client or infrastructure.
+
 You can view and manage your API key by logging into Parsagon and visiting your [settings](https://parsagon.io/settings) page.
 
 ## Content types

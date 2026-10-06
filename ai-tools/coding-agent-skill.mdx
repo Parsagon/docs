@@ -52,6 +52,14 @@ Authenticate every request with an API key in the `Authorization` header.
 Authorization: Token <PARSAGON_API_KEY>
 ```
 
+Alternatively, send the API key in the `X-API-KEY` header without a prefix:
+
+```http
+X-API-KEY: <PARSAGON_API_KEY>
+```
+
+Only one of the two headers is required. Prefer `Authorization: Token` unless the host application or HTTP client makes `X-API-KEY` easier to set.
+
 Never hardcode API keys. Read keys from environment variables, secret stores, or the host application's existing configuration system.
 
 ## Endpoint selection
