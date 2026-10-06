@@ -1,0 +1,96 @@
+---
+title: 'Get jurisdiction usage'
+description: 'Retrieve report and source search usage grouped by jurisdiction.'
+api: 'GET https://parsagon.io/api/usage/v1/jurisdictions/'
+---
+
+Returns your report and source search usage grouped by jurisdiction. Usage only includes jurisdictions available to your account.
+
+Each report counts once for every jurisdiction attached to it. Each source search counts once for every jurisdiction represented by its selected categories. Test reports and test source searches are excluded.
+
+<Info>
+  Without a custom date range, the endpoint returns usage for the current calendar month in UTC.
+</Info>
+
+## Query parameters
+
+<ParamField query="start" type="string">
+  Start of the usage period as an ISO 8601 timestamp. This value is inclusive and must be provided with `end`.
+</ParamField>
+
+<ParamField query="end" type="string">
+  End of the usage period as an ISO 8601 timestamp. This value is exclusive and must be provided with `start`.
+</ParamField>
+
+Custom usage periods cannot exceed 366 days. If you provide only `start` or `end`, or request a longer period, the endpoint returns `400 Bad Request`.
+
+## Response
+
+<ResponseField name="user_id" type="integer">
+  ID of the user whose usage is represented.
+</ResponseField>
+
+<ResponseField name="start" type="string">
+  Inclusive start of the effective usage period as an ISO 8601 timestamp.
+</ResponseField>
+
+<ResponseField name="end" type="string">
+  Exclusive end of the effective usage period as an ISO 8601 timestamp.
+</ResponseField>
+
+<ResponseField name="jurisdictions" type="array">
+  Jurisdictions with non-zero usage that are available to your account.
+
+  <Expandable title="Jurisdiction usage fields">
+    <ResponseField name="jurisdiction" type="string">
+      Two-letter jurisdiction code, such as `BE`, `GB`, `US`, or `EU`.
+    </ResponseField>
+
+    <ResponseField name="name" type="string">
+      Display name of the jurisdiction.
+    </ResponseField>
+
+    <ResponseField name="source_search_count" type="integer">
+      Number of source searches attributed to the jurisdiction.
+    </ResponseField>
+
+    <ResponseField name="report_count" type="integer">
+      Number of reports attributed to the jurisdiction.
+    </ResponseField>
+
+    <ResponseField name="total_usage" type="integer">
+      Sum of `source_search_count` and `report_count` for the jurisdiction.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="total_usage" type="integer">
+  Sum of usage across all returned jurisdictions.
+</ResponseField>
+
+<ResponseExample>
+```json Example response
+{
+  "user_id": 123,
+  "start": "2026-09-01T00:00:00Z",
+  "end": "2026-10-01T00:00:00Z",
+  "jurisdictions": [
+    {
+      "jurisdiction": "BE",
+      "name": "Belgium",
+      "source_search_count": 7,
+      "report_count": 2,
+      "total_usage": 9
+    }
+  ],
+  "total_usage": 9
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/usage/v1/jurisdictions/?start=2026-09-01T00:00:00Z&end=2026-10-01T00:00:00Z" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
