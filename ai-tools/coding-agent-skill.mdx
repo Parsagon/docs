@@ -88,6 +88,8 @@ Do not use Quick Search or Advanced Search when the integration needs unfiltered
 
 Use **Advanced Search** when the integration needs to extract structured data from each source. For example, use the edit prompt to ask Parsagon to return JSON with specific fields about source contents.
 
+Use **Get Legislative Source** (`GET https://parsagon.io/api/legislative/v1/sources/{source_uuid}/`) to retrieve bill data for a source whose `type` is `"LEGISLATION"`. Pass the source's `uuid`. The response includes `source` (the source UUID), `bill` (the bill's UUID `id`, jurisdiction `code` and `name`, `external_id`, titles, `current_stage`, `status_normalized`, `next_event_date`, `upstream_url`, and similar fields), and `links` (the bill text versions, amendments, speeches, or divisions that use the source). The endpoint returns `404` for sources that are not `"LEGISLATION"` sources. On the category sources endpoints, use `?type=LEGISLATION` to return only these sources.
+
 If the integration needs all results and then needs to edit or transform them, retrieve all data with Get Category Sources and transform the data in the host application. If the transformation would be very hard to implement locally, tell the user to reach out to Parsagon to discuss a custom transformation through a custom category.
 
 ## Shared request schema
@@ -209,12 +211,13 @@ Surface Parsagon API errors with enough context to debug the request, but do not
 
 Search result objects may include these fields:
 
+- `uuid`: Unique identifier of the source. May be `null` for results that Parsagon does not store as sources, and is always `null` for built-in test mode results. Handle `null` before calling Get Legislative Source.
 - `url`: URL of the source document.
 - `title`: Title of the document.
 - `date`: Date when Parsagon collected the document. This may differ slightly from the original publication date.
 - `text`: Full text or main body of the document.
 - `summary`: AI-generated 1-2 sentence summary of the document.
-- `type`: Document type. Usually `"ARTICLE"` for press releases, announcements, generic articles, and similar content, or `"LAW"` for bills and legislation.
+- `type`: Document type. `"ARTICLE"` for press releases, announcements, generic articles, and similar content, `"LAW"` for bills and legislation, or `"LEGISLATION"` for bill tracker records such as bill text versions, amendments, debate speeches, and divisions (votes).
 - `extra_data`: Additional metadata. Fields are not guaranteed and depend on the jurisdiction and source type. For legislation data, `extra_data` often but not always includes `bill`, `status`, `last_action`, and `last_action_date`; `bill` is the bill ID. For regulations, `extra_data` often but not always includes `agency_name`, `document_type`, `comment_deadline`, and `effective_date`.
 - `search_topics`: Zero-based indexes of `filter_prompt` lines relevant to the result.
 - `jurisdictions`: Jurisdictions that apply to the result.

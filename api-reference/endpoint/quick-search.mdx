@@ -63,6 +63,9 @@ The Quick Search endpoint runs a search synchronously and returns results direct
   Array of search result objects.
 
   <Expandable title="Search result fields">
+    <ResponseField name="uuid" type="string | null">
+      Unique identifier of the source. Use it with [Get legislative source](/api-reference/endpoint/legislative-source) to retrieve bill data for `"LEGISLATION"` sources. May be `null` for results that Parsagon does not store as sources, and is always `null` for the built-in example results returned in test mode.
+    </ResponseField>
     <ResponseField name="url" type="string">
       URL of the source document.
     </ResponseField>
@@ -79,7 +82,11 @@ The Quick Search endpoint runs a search synchronously and returns results direct
       AI-generated 1–2 sentence summary of the document.
     </ResponseField>
     <ResponseField name="type" type="string">
-      Type of document. Either `"ARTICLE"` (press releases, announcements, generic articles, and similar content) or `"LAW"` (bills and legislation).
+      Type of document. One of:
+
+      - `"ARTICLE"`: press releases, announcements, generic articles, and similar content.
+      - `"LAW"`: bills and legislation.
+      - `"LEGISLATION"`: records from Parsagon's bill tracker, such as bill text versions, amendments, debate speeches, and divisions (votes). These sources have associated bill data. Pass the result's `uuid` to [Get legislative source](/api-reference/endpoint/legislative-source) to retrieve it.
     </ResponseField>
     <ResponseField name="extra_data" type="object">
       For `"LAW"` documents, an object containing additional legislative metadata. May include `status`, `last_action`, and `last_action_date` — not all fields are present on every document. For non-`"LAW"` documents, this is usually empty.
@@ -123,6 +130,7 @@ curl -X POST "https://parsagon.io/api/events/v1/quick-search/" \
 {
   "search_results": [
     {
+      "uuid": "5d2b8e71-0c4a-4f93-a6e8-3b1f7d9c2a05",
       "url": "https://legislature.maine.gov/LawMakerWeb/summary.asp?ID=280101474",
       "title": "An Act to Lower Health Insurance Costs, Reduce Barriers to Health Care and Ensure Fair Prices for Health Care",
       "text": "Be it enacted by the People of the State of Maine as follows:...",

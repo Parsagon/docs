@@ -12,6 +12,12 @@ Returns a chronological list of all sources collected for the specified category
   The ID of the data category to retrieve sources for.
 </ParamField>
 
+## Query parameters
+
+<ParamField query="type" type="string">
+  Only return sources of this type: `ARTICLE`, `LAW`, or `LEGISLATION`. For `LEGISLATION` sources, pass each result's `uuid` to [Get legislative source](/api-reference/endpoint/legislative-source) to retrieve its bill data.
+</ParamField>
+
 ## Response
 
 <ResponseField name="count" type="number">
@@ -38,6 +44,7 @@ Returns a chronological list of all sources collected for the specified category
   "previous": null,
   "results": [
     {
+      "uuid": "e7a3c1d9-4b6f-4e28-9d05-8f2a1c6b3e70",
       "url": "https://www.nps.gov/cure/learn/news/curecanti-national-recreation-area-seeks-input-on-upgrades-to-water-and-wastewater-systems.htm",
       "title": "Curecanti National Recreation Area Seeks Input on Upgrades to Water and Wastewater Systems",
       "text": "Gunnison, Colo. – The National Park Service seeks public input on a proposed project to replace the water and wastewater systems within Curecanti National Recreation Area.\n\nThe proposed project will focus on...",

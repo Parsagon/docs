@@ -29,6 +29,7 @@
            "api-reference/endpoint/jurisdiction-usage",
            "api-reference/endpoint/category-sources",
           "api-reference/endpoint/category-sources-v2",
+          "api-reference/endpoint/legislative-source",
           "api-reference/endpoint/list-transcripts",
           "api-reference/endpoint/search-transcripts",
           "api-reference/endpoint/get-transcript",

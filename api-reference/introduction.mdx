@@ -34,6 +34,18 @@ The API provides three ways to retrieve data:
 
 **Get Category Sources** returns the full chronological list of all sources collected for a given data category, without any AI filtering or summarization. Use this to retrieve raw, unfiltered data for a specific category, covering up to the last 90 days.
 
+## Source types
+
+Every source returned by the API has a `type`:
+
+| Type | Description |
+|---|---|
+| `ARTICLE` | Press releases, announcements, generic articles, and similar content. |
+| `LAW` | Bills and legislation. |
+| `LEGISLATION` | Records from Parsagon's bill tracker, such as bill text versions, amendments, debate speeches, and divisions (votes). |
+
+Sources of type `LEGISLATION` have associated bill data, such as the bill's current stage, status, and next scheduled event. To retrieve it, pass the source's `uuid` to [Get legislative source](/api-reference/endpoint/legislative-source) (`GET https://parsagon.io/api/legislative/v1/sources/{source_uuid}/`).
+
 ## Base URL
 
 All endpoints are relative to:

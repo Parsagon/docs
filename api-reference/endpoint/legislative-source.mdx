@@ -1,0 +1,189 @@
+---
+title: 'Get legislative source'
+description: 'Retrieve the bill data associated with a source of type LEGISLATION.'
+api: 'GET https://parsagon.io/api/legislative/v1/sources/{source_uuid}/'
+---
+
+Returns the bill associated with a `"LEGISLATION"` source, along with the legislative records that use the source.
+
+Sources of type `"LEGISLATION"` come from Parsagon's bill tracker. Each one is a bill text version, an amendment, a speech from a debate on the bill, or a division (vote) on the bill. Use this endpoint to look up the bill a source belongs to, such as its current stage, status, and next scheduled event.
+
+<Info>
+  This endpoint uses the base URL `https://parsagon.io/api/legislative/v1/` instead of `https://parsagon.io/api/events/v1/`. Authentication is the same as for every other endpoint.
+</Info>
+
+## Path parameters
+
+<ParamField path="source_uuid" type="string" required>
+  The `uuid` of a source with `type` `"LEGISLATION"`. Use the `uuid` field from a [Quick Search](/api-reference/endpoint/quick-search), [Advanced Search](/api-reference/endpoint/get-search), or [category sources](/api-reference/endpoint/category-sources-v2) result.
+</ParamField>
+
+## Response
+
+<ResponseField name="source" type="string">
+  The `uuid` of the requested source.
+</ResponseField>
+
+<ResponseField name="bill" type="object">
+  The bill the source belongs to. If the source is linked to more than one bill, this is the bill of the first entry in `links`.
+
+  <Expandable title="Bill fields">
+    <ResponseField name="id" type="string">
+      UUID of the bill.
+    </ResponseField>
+    <ResponseField name="jurisdiction" type="object">
+      The legislature the bill belongs to, with a `code` (for example, `"UK"`) and a `name`.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The bill's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Short title of the bill.
+    </ResponseField>
+    <ResponseField name="long_title" type="string">
+      Long title of the bill. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="bill_type" type="string">
+      Bill subtype, such as `"Government Bill"` or `"Private Member's Bill"`. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="session" type="string">
+      The legislature's ID for the session, such as `"40"` or `"2025-2026"`.
+    </ResponseField>
+    <ResponseField name="session_name" type="string">
+      Display name of the session.
+    </ResponseField>
+    <ResponseField name="introduction_date" type="string | null">
+      When the bill was introduced (ISO 8601).
+    </ResponseField>
+    <ResponseField name="current_house" type="string">
+      The house currently considering the bill.
+    </ResponseField>
+    <ResponseField name="current_stage" type="string">
+      The bill's most recent action or stage.
+    </ResponseField>
+    <ResponseField name="current_stage_date" type="string | null">
+      When the most recent action happened (ISO 8601).
+    </ResponseField>
+    <ResponseField name="status_normalized" type="string">
+      The bill's status, normalized across jurisdictions. One of `"INTRODUCED"`, `"CONSIDERING"`, `"PASSED"`, `"FAILED"`, `"INACTIVE"`, or `"OTHER"`. Empty if unknown.
+    </ResponseField>
+    <ResponseField name="originating_house" type="string">
+      The house the bill was introduced in.
+    </ResponseField>
+    <ResponseField name="is_act" type="boolean">
+      Whether the bill has become an act.
+    </ResponseField>
+    <ResponseField name="last_update" type="string | null">
+      When the legislature last updated the bill (ISO 8601).
+    </ResponseField>
+    <ResponseField name="next_event_date" type="string | null">
+      Date of the bill's next scheduled event (ISO 8601).
+    </ResponseField>
+    <ResponseField name="next_event_description" type="string">
+      Description of the bill's next scheduled event.
+    </ResponseField>
+    <ResponseField name="amendments_as_at" type="string | null">
+      When the bill's amendment list was last published (ISO 8601).
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the bill's page on the legislature's website.
+    </ResponseField>
+    <ResponseField name="source" type="string | null">
+      `uuid` of the source that holds the bill's current text. This can differ from the requested source, for example when you request an amendment or an older text version.
+    </ResponseField>
+    <ResponseField name="first_seen" type="string">
+      When Parsagon first collected the bill (ISO 8601).
+    </ResponseField>
+    <ResponseField name="last_seen" type="string">
+      When Parsagon last updated the bill (ISO 8601).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="links" type="array">
+  The legislative records that use the source. This usually has one entry.
+
+  <Expandable title="Link fields">
+    <ResponseField name="kind" type="string">
+      Type of legislative record. One of `"text_version"`, `"amendment"`, `"speech"`, `"division"`, or `"bill"`.
+    </ResponseField>
+    <ResponseField name="id" type="string">
+      UUID of the record.
+    </ResponseField>
+    <ResponseField name="label" type="string">
+      Human-readable label for the record, such as `"Amendment 17 (Committee stage)"` or `"Sarah Sackman - Courts and Tribunals Bill"`.
+    </ResponseField>
+    <ResponseField name="date" type="string | null">
+      Date of the record (ISO 8601). This is the publication date for text versions, the sitting date for speeches, and the vote date for divisions. Always `null` for amendments and bills.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the record on the legislature's website. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="bill" type="string">
+      UUID of the bill the record belongs to.
+    </ResponseField>
+    <ResponseField name="is_current_text" type="boolean">
+      Whether the source is the bill's current text.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `404 Not Found` | No legislative record uses this source, or no source has this `uuid`. Every source that isn't of type `"LEGISLATION"` returns this error. |
+
+<ResponseExample>
+```json Example response
+{
+  "source": "3f1c9a52-7d4e-4b8a-9c61-2e5b0d8f4a17",
+  "bill": {
+    "id": "b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61",
+    "jurisdiction": {
+      "code": "UK",
+      "name": "United Kingdom"
+    },
+    "external_id": "4083",
+    "title": "Courts and Tribunals Bill",
+    "long_title": "A Bill to make provision about courts and tribunals; and for connected purposes.",
+    "bill_type": "Government Bill",
+    "session": "40",
+    "session_name": "2024-26",
+    "introduction_date": "2026-09-08T00:00:00Z",
+    "current_house": "Commons",
+    "current_stage": "Committee stage",
+    "current_stage_date": "2026-11-10T00:00:00Z",
+    "status_normalized": "CONSIDERING",
+    "originating_house": "Commons",
+    "is_act": false,
+    "last_update": "2026-11-10T14:32:00Z",
+    "next_event_date": "2026-11-17T00:00:00Z",
+    "next_event_description": "Committee stage: 3rd sitting",
+    "amendments_as_at": "2026-11-12T00:00:00Z",
+    "upstream_url": "https://bills.parliament.uk/bills/4083",
+    "source": "9a7e6b14-2c5d-4f80-b3e1-7d2c8f05a6b9",
+    "first_seen": "2026-09-08T06:12:44Z",
+    "last_seen": "2026-11-12T06:15:03Z"
+  },
+  "links": [
+    {
+      "kind": "amendment",
+      "id": "c41d7e93-8b2a-4f6c-a05e-1d9b3f7c2e84",
+      "label": "Amendment 17 (Committee stage)",
+      "date": null,
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/20012/amendments/9921",
+      "bill": "b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61",
+      "is_current_text": false
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/sources/3f1c9a52-7d4e-4b8a-9c61-2e5b0d8f4a17/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
