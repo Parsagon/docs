@@ -73,8 +73,6 @@ To catch new bills and new activity on existing bills:
 
 `updated_since` filters on when Parsagon collected a change, not when the legislature made it. A change that the legislature dated earlier but Parsagon collected later is still returned.
 
-Parsagon updates each jurisdiction about every 12 hours. Some records are published later than others. For example, Dutch debate speeches come from the official record (Handelingen), which is published about 6 weeks after the debate.
-
 ## From a source to its bill
 
 Search and category sources results include sources of type `"LEGISLATION"`. Each of these is a bill text version, amendment, speech, or division from the bill tracker. To find the bill and the record a source belongs to, pass its `uuid` to [Get legislative source](/api-reference/legislative/get-source).

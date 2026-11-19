@@ -14,13 +14,13 @@
   Long title of the bill. Empty if unavailable.
 </ResponseField>
 <ResponseField name="bill_type" type="string">
-  Bill subtype, such as `"Government Bill"` or `"Private Member's Bill"`. Empty if unavailable.
+  Bill subtype, such as `"Government Bill"` or `"Private Members' Bill (Presentation Bill)"`. Empty if unavailable.
 </ResponseField>
 <ResponseField name="session" type="string">
   The legislature's ID for the session, such as `"40"` or `"2025-2026"`.
 </ResponseField>
 <ResponseField name="session_name" type="string">
-  Display name of the session.
+  Display name of the session, such as `"2026-27 session"`.
 </ResponseField>
 <ResponseField name="introduction_date" type="string | null">
   When the bill was introduced (ISO 8601).
@@ -29,10 +29,10 @@
   The house currently considering the bill.
 </ResponseField>
 <ResponseField name="current_stage" type="string">
-  The bill's most recent action or stage, in the legislature's own language.
+  The stage the bill is currently at, in the legislature's own language.
 </ResponseField>
 <ResponseField name="current_stage_date" type="string | null">
-  When the most recent action happened (ISO 8601).
+  When the bill's most recent step happened (ISO 8601). If the current stage has several sittings, this is the latest one so far. If the current stage hasn't started yet, this is the date of the bill's last step before it.
 </ResponseField>
 <ResponseField name="status_normalized" type="string">
   The bill's status, normalized across jurisdictions. One of `"INTRODUCED"`, `"CONSIDERING"`, `"PASSED"`, `"FAILED"`, `"INACTIVE"`, or `"OTHER"`. Empty if unknown.

@@ -117,25 +117,25 @@ Records without a date are listed last.
   "results": [
     {
       "id": "8f4b2d6a-0c1e-4a73-9b58-e2d7f6a1c394",
-      "external_id": "3412",
+      "external_id": "2435",
       "kind": "vote",
-      "source_name": "lords_votes",
-      "house": "Lords",
-      "title": "Amendment 7",
-      "date": "2026-11-09T00:00:00Z",
-      "ayes": 150,
-      "noes": 200,
-      "result": "Not content",
+      "source_name": "commons_votes",
+      "house": "Commons",
+      "title": "Courts and Tribunals Bill Report Stage: Amendment 1",
+      "date": "2026-10-13T18:15:00Z",
+      "ayes": 196,
+      "noes": 304,
+      "result": "Noes",
       "is_committee": false,
       "linked_amendment": "e5a9c3b7-2d4f-4e18-a6c0-9b1d8f7e3a52",
-      "linked_amendment_no": "7",
-      "subject_text": "Leave out clause 3",
-      "upstream_url": "https://votes.parliament.uk/votes/lords/division/3412",
+      "linked_amendment_no": "1",
+      "subject_text": "Page 1, line 4, leave out Clause 1",
+      "upstream_url": "https://votes.parliament.uk/votes/commons/division/2435",
       "source": "6c2e8a14-9f3b-4d07-b5a1-0e7d4c9f2b86"
     },
     {
       "id": "d1f7a3c9-4e8b-4b26-8c05-7a3e9d2f1b40",
-      "external_id": "21266:9925",
+      "external_id": "21266:10040284",
       "kind": "decision",
       "source_name": "uk_amendment_decision",
       "house": "Lords",
@@ -145,10 +145,10 @@ Records without a date are listed last.
       "noes": null,
       "result": "Withdrawn",
       "is_committee": false,
-      "linked_amendment": null,
+      "linked_amendment": "f2b8d4a6-1c3e-4d70-9a5b-7e0c2f8d6b13",
       "linked_amendment_no": "9",
-      "subject_text": "This amendment would require the Lord Chancellor to publish an impact assessment.",
-      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/21266/amendments/9925",
+      "subject_text": "This amendment would limit judge-only trials to situations where all of the defendants are to be tried on indictment for one or more offences listed in Schedule 3ZA.",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/21266/amendments/10040284",
       "source": null
     }
   ]
@@ -158,7 +158,7 @@ Records without a date are listed last.
 
 <RequestExample>
 ```bash cURL
-curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/votes/?kind=vote" \
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/votes/" \
   -H "Authorization: Token YOUR_API_KEY_HERE"
 ```
 </RequestExample>
