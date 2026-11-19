@@ -36,20 +36,8 @@ To poll for new bills and new activity on existing bills, use `updated_since`. S
   Only return bills from this session. Use the legislature's session ID, as in the bill's `session` field.
 </ParamField>
 
-<ParamField query="bill_type" type="string">
-  Only return bills of this type, such as `Government Bill`. Must match the bill's `bill_type` exactly.
-</ParamField>
-
 <ParamField query="is_act" type="boolean">
   Set to `true` to only return bills that have become acts, or `false` to exclude them.
-</ParamField>
-
-<ParamField query="external_id" type="string">
-  Only return the bill with this ID in the legislature's own system.
-</ParamField>
-
-<ParamField query="search" type="string">
-  Only return bills whose title, long title, or external ID contains this text. Case-insensitive.
 </ParamField>
 
 <ParamField query="page_size" type="number">
