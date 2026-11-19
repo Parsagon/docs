@@ -1,0 +1,45 @@
+---
+title: 'List jurisdictions'
+description: 'List the jurisdictions whose bills your API key can read.'
+api: 'GET https://parsagon.io/api/legislative/v1/jurisdictions/'
+---
+
+Returns the jurisdictions whose bills you can read, sorted by `code`. This response isn't paginated.
+
+To get access to more jurisdictions, contact us at [webmaster@parsagon.io](mailto:webmaster@parsagon.io).
+
+## Response
+
+Returns an array of jurisdiction objects.
+
+<ResponseField name="code" type="string">
+  Code of the jurisdiction, such as `"GB"`. Use it with the `jurisdiction` filter on [List bills](/api-reference/legislative/list-bills).
+</ResponseField>
+
+<ResponseField name="name" type="string">
+  Name of the jurisdiction, such as `"United Kingdom"`.
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+
+<ResponseExample>
+```json Example response
+[
+  {
+    "code": "GB",
+    "name": "United Kingdom"
+  }
+]
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/jurisdictions/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

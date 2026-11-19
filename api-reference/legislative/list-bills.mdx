@@ -1,0 +1,132 @@
+---
+title: 'List bills'
+description: 'List bills in the jurisdictions you can access, most recently updated first.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/'
+---
+
+import BillFields from '/snippets/legislative/bill-fields.mdx';
+
+Returns the bills in the jurisdictions you can access, most recently updated first. Results use cursor pagination.
+
+To poll for new bills and new activity on existing bills, use `updated_since`. See [Polling for changes](/api-reference/legislative/overview#polling-for-changes).
+
+## Query parameters
+
+<ParamField query="jurisdiction" type="string">
+  Only return bills from these jurisdictions. Pass one or more comma-separated codes from [List jurisdictions](/api-reference/legislative/list-jurisdictions), such as `GB`.
+</ParamField>
+
+<ParamField query="updated_since" type="string">
+  Only return bills that Parsagon updated at or after this time (ISO 8601). Filters on the bill's `last_seen`.
+</ParamField>
+
+<ParamField query="updated_before" type="string">
+  Only return bills that Parsagon last updated before this time (ISO 8601). Filters on the bill's `last_seen`.
+</ParamField>
+
+<ParamField query="introduced_since" type="string">
+  Only return bills introduced at or after this time (ISO 8601).
+</ParamField>
+
+<ParamField query="status_normalized" type="string">
+  Only return bills with this status: `INTRODUCED`, `CONSIDERING`, `PASSED`, `FAILED`, `INACTIVE`, or `OTHER`.
+</ParamField>
+
+<ParamField query="session" type="string">
+  Only return bills from this session. Use the legislature's session ID, as in the bill's `session` field.
+</ParamField>
+
+<ParamField query="bill_type" type="string">
+  Only return bills of this type, such as `Government Bill`. Must match the bill's `bill_type` exactly.
+</ParamField>
+
+<ParamField query="is_act" type="boolean">
+  Set to `true` to only return bills that have become acts, or `false` to exclude them.
+</ParamField>
+
+<ParamField query="external_id" type="string">
+  Only return the bill with this ID in the legislature's own system.
+</ParamField>
+
+<ParamField query="search" type="string">
+  Only return bills whose title, long title, or external ID contains this text. Case-insensitive.
+</ParamField>
+
+<ParamField query="page_size" type="number">
+  The maximum number of bills to return. Defaults to `100`; maximum `500`.
+</ParamField>
+
+<ParamField query="cursor" type="string">
+  Cursor token from the previous response's `next` or `previous` URL.
+</ParamField>
+
+## Response
+
+<ResponseField name="next" type="string | null">
+  URL for the next page of results, or `null` if this is the last page.
+</ResponseField>
+
+<ResponseField name="previous" type="string | null">
+  URL for the previous page of results, or `null` if this is the first page.
+</ResponseField>
+
+<ResponseField name="results" type="array">
+  Array of bills, most recently updated first.
+
+  <Expandable title="Bill fields">
+    <BillFields />
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | A filter has an invalid value, such as a malformed date. |
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+
+<ResponseExample>
+```json Example response
+{
+  "next": "https://parsagon.io/api/legislative/v1/bills/?cursor=cD0yMDI2LTExLTEyKzA2JTNBMTUlM0EwMyUyQjAwJTNBMDA%3D&updated_since=2026-11-12T00%3A00%3A00Z",
+  "previous": null,
+  "results": [
+    {
+      "id": "b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61",
+      "jurisdiction": {
+        "code": "GB",
+        "name": "United Kingdom"
+      },
+      "external_id": "4083",
+      "title": "Courts and Tribunals Bill",
+      "long_title": "A Bill to make provision about courts and tribunals; and for connected purposes.",
+      "bill_type": "Government Bill",
+      "session": "40",
+      "session_name": "2024-26",
+      "introduction_date": "2026-09-08T00:00:00Z",
+      "current_house": "Commons",
+      "current_stage": "Committee stage",
+      "current_stage_date": "2026-11-10T00:00:00Z",
+      "status_normalized": "CONSIDERING",
+      "originating_house": "Commons",
+      "is_act": false,
+      "last_update": "2026-11-10T14:32:00Z",
+      "next_event_date": "2026-11-17T00:00:00Z",
+      "next_event_description": "Committee stage: 3rd sitting",
+      "amendments_as_at": "2026-11-12T00:00:00Z",
+      "upstream_url": "https://bills.parliament.uk/bills/4083",
+      "source": "9a7e6b14-2c5d-4f80-b3e1-7d2c8f05a6b9",
+      "first_seen": "2026-09-08T06:12:44Z",
+      "last_seen": "2026-11-12T06:15:03Z"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/?jurisdiction=GB&updated_since=2026-11-12T00:00:00Z" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

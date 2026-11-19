@@ -1,0 +1,88 @@
+---
+title: 'Legislative API overview'
+sidebarTitle: 'Overview'
+description: 'Retrieve bills and their records, such as actions, amendments, votes, speeches, and text versions, from Parsagon''s bill tracker.'
+---
+
+The legislative API gives you read-only access to the bills that Parsagon's bill tracker collects. For each bill, you can retrieve its current status and full history, along with its records:
+
+- **Actions:** the steps in the bill's history, such as readings and stages.
+- **Events:** sittings, debates, and other activities on the bill, past and scheduled.
+- **Amendments:** amendments tabled to the bill, with their text and sponsors.
+- **Votes:** divisions (counted votes) and decisions on amendments.
+- **Speeches:** contributions to debates on the bill, with their text.
+- **Text versions:** each published version of the bill, with its full text.
+
+## Base URL
+
+All legislative endpoints are relative to:
+
+```text
+https://parsagon.io/api/legislative/v1/
+```
+
+This differs from the base URL of the other endpoints, `https://parsagon.io/api/events/v1/`.
+
+## Authentication
+
+Authenticate with your API key, the same way as for every other endpoint. See [Authentication](/api-reference/introduction#authentication).
+
+## Access
+
+Legislative data is enabled per jurisdiction. To get access, contact us at [webmaster@parsagon.io](mailto:webmaster@parsagon.io).
+
+To see which jurisdictions your API key can read, call [List jurisdictions](/api-reference/legislative/list-jurisdictions).
+
+- Your account needs a valid Parsagon subscription and must have accepted the Terms of Service. Otherwise, every endpoint returns `403 Forbidden`.
+- A bill in a jurisdiction you can't access returns `404 Not Found`, as if it didn't exist. The same applies to its records.
+- A new bill appears once Parsagon finishes collecting it for the first time.
+
+## Identifiers
+
+- Bills and their records are identified by `id`, a UUID. Records keep the same `id` each time Parsagon updates them.
+- Jurisdictions are identified by `code`, such as `"GB"`.
+- `external_id` is the ID of a bill or record in the legislature's own system.
+- Sources are identified by their `uuid`, the same as in search and category sources results.
+
+## Dates and times
+
+All dates and times are in ISO 8601 format (UTC). Date filters such as `updated_since` also take ISO 8601, for example `2026-11-01T00:00:00Z`.
+
+## Language
+
+`current_stage` and other text from the legislature are in the legislature's own language. Actions also have an English `text`, with the original wording in `source_language_text`.
+
+## Pagination
+
+[List bills](/api-reference/legislative/list-bills) uses cursor pagination:
+
+- Set the page size with `page_size` (default `100`, maximum `500`).
+- Follow the `next` URL in each response until it is `null`.
+
+The bill record endpoints, such as [List bill actions](/api-reference/legislative/list-actions), use limit/offset pagination:
+
+- Set the page size with `limit` (default `100`, maximum `500`) and skip records with `offset`.
+- Each response includes `count`, the total number of matching records.
+
+## Polling for changes
+
+To catch new bills and new activity on existing bills:
+
+1. Call [List bills](/api-reference/legislative/list-bills) with `updated_since` set to the start of your previous poll, minus a margin such as 1 hour. Follow `next` until it is `null`.
+2. For each bill returned, retrieve the records you need, such as [votes](/api-reference/legislative/list-votes) or [speeches](/api-reference/legislative/list-speeches). Compare record `id`s with the ones you already have to find new records.
+
+`updated_since` filters on when Parsagon collected a change, not when the legislature made it. A change that the legislature dated earlier but Parsagon collected later is still returned.
+
+Parsagon updates each jurisdiction about every 12 hours. Some records are published later than others. For example, Dutch debate speeches come from the official record (Handelingen), which is published about 6 weeks after the debate.
+
+## From a source to its bill
+
+Search and category sources results include sources of type `"LEGISLATION"`. Each of these is a bill text version, amendment, speech, or division from the bill tracker. To find the bill and the record a source belongs to, pass its `uuid` to [Get legislative source](/api-reference/legislative/get-source).
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | A filter has an invalid value, such as a malformed date. |
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | The bill or record doesn't exist, or it belongs to a jurisdiction you can't access. |

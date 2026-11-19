@@ -29,11 +29,37 @@
            "api-reference/endpoint/jurisdiction-usage",
            "api-reference/endpoint/category-sources",
           "api-reference/endpoint/category-sources-v2",
-          "api-reference/endpoint/legislative-source",
           "api-reference/endpoint/list-transcripts",
           "api-reference/endpoint/search-transcripts",
           "api-reference/endpoint/get-transcript",
           "api-reference/endpoint/transcript-requests"
+        ]
+      },
+      {
+        "group": "Legislative",
+        "pages": [
+          "api-reference/legislative/overview",
+          "api-reference/legislative/list-jurisdictions",
+          {
+            "group": "Bills",
+            "pages": [
+              "api-reference/legislative/list-bills",
+              "api-reference/legislative/get-bill"
+            ]
+          },
+          {
+            "group": "Bill records",
+            "pages": [
+              "api-reference/legislative/list-actions",
+              "api-reference/legislative/list-events",
+              "api-reference/legislative/list-amendments",
+              "api-reference/legislative/list-votes",
+              "api-reference/legislative/list-speeches",
+              "api-reference/legislative/list-texts",
+              "api-reference/legislative/get-text"
+            ]
+          },
+          "api-reference/legislative/get-source"
         ]
       },
       {
@@ -82,6 +108,10 @@
     {
       "source": "/",
       "destination": "/api-reference/introduction"
+    },
+    {
+      "source": "/api-reference/endpoint/legislative-source",
+      "destination": "/api-reference/legislative/get-source"
     }
   ],
   "footer": {

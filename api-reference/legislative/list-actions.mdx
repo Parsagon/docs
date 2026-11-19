@@ -1,0 +1,102 @@
+---
+title: 'List bill actions'
+sidebarTitle: 'Actions'
+description: 'Retrieve the full history of a bill, oldest first.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/actions/'
+---
+
+import LimitOffsetParams from '/snippets/legislative/limit-offset-params.mdx';
+import LimitOffsetResponse from '/snippets/legislative/limit-offset-response.mdx';
+
+Returns the steps in a bill's history, such as readings, stages, decisions, and publications, oldest first. This is the bill's full history from the legislature, including steps from before Parsagon started tracking the bill.
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+## Query parameters
+
+<LimitOffsetParams />
+
+## Response
+
+<LimitOffsetResponse />
+
+<ResponseField name="results" type="array">
+  Array of actions, oldest first.
+
+  <Expandable title="Action fields">
+    <ResponseField name="id" type="string">
+      UUID of the action.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The action's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="date" type="string | null">
+      When the action happened (ISO 8601).
+    </ResponseField>
+    <ResponseField name="house" type="string">
+      The house where the action happened. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="text" type="string">
+      Description of the action, in English.
+    </ResponseField>
+    <ResponseField name="source_language_text" type="string">
+      Description of the action in the legislature's own language. Empty if the original is in English.
+    </ResponseField>
+    <ResponseField name="action_type" type="string">
+      Type of action, as given by the legislature. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the action on the legislature's website. Empty if unavailable.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, or the bill belongs to a jurisdiction you can't access. |
+
+<ResponseExample>
+```json Example response
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "0e6f2a91-3c7d-4b58-a1e4-9d2b7c5f8a30",
+      "external_id": "20520:17844",
+      "date": "2026-09-08T00:00:00Z",
+      "house": "Commons",
+      "text": "1st reading",
+      "source_language_text": "",
+      "action_type": "",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/20520"
+    },
+    {
+      "id": "7b3d9e15-6a2c-4f80-8e47-1c5a0d9b2f63",
+      "external_id": "21266:18697",
+      "date": "2026-11-10T00:00:00Z",
+      "house": "Commons",
+      "text": "Committee stage",
+      "source_language_text": "",
+      "action_type": "",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/21266"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/actions/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

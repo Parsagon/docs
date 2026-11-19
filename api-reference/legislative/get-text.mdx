@@ -1,0 +1,105 @@
+---
+title: 'Get bill text version'
+sidebarTitle: 'Get text version'
+description: 'Retrieve a single version of a bill''s text, with its full extracted text.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/texts/{text_id}/'
+---
+
+Returns a single version of a bill's text, with its full extracted text.
+
+Parsagon extracts the text after collecting the version. Until then, `text` is `null`. To check whether the text is available without retrieving it, use the `has_text` field from [List bill text versions](/api-reference/legislative/list-texts).
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+<ParamField path="text_id" type="string" required>
+  The `id` of the text version, from [List bill text versions](/api-reference/legislative/list-texts).
+</ParamField>
+
+## Response
+
+Returns the same fields as [List bill text versions](/api-reference/legislative/list-texts), plus `text`.
+
+<ResponseField name="id" type="string">
+  UUID of the text version.
+</ResponseField>
+
+<ResponseField name="external_id" type="string">
+  The text version's ID in the legislature's own system.
+</ResponseField>
+
+<ResponseField name="title" type="string">
+  Title of the text version, such as `"HL Bill 57"`. Empty if unavailable.
+</ResponseField>
+
+<ResponseField name="publication_type" type="string">
+  Type of publication, as given by the legislature. Empty if unavailable.
+</ResponseField>
+
+<ResponseField name="publication_date" type="string | null">
+  When the text version was published (ISO 8601).
+</ResponseField>
+
+<ResponseField name="is_current" type="boolean">
+  Whether this is the bill's current text.
+</ResponseField>
+
+<ResponseField name="pdf_url" type="string">
+  URL of the PDF version on the legislature's website. Empty if unavailable.
+</ResponseField>
+
+<ResponseField name="html_url" type="string">
+  URL of the HTML version on the legislature's website. Empty if unavailable.
+</ResponseField>
+
+<ResponseField name="download_url" type="string">
+  URL that Parsagon downloaded the text from. Empty if unavailable.
+</ResponseField>
+
+<ResponseField name="source" type="string | null">
+  `uuid` of the `"LEGISLATION"` source that holds the extracted text. `null` until the text is extracted.
+</ResponseField>
+
+<ResponseField name="has_text" type="boolean">
+  Whether the extracted text is available.
+</ResponseField>
+
+<ResponseField name="text" type="string | null">
+  Full extracted text of the version. `null` until the text is extracted.
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, the bill belongs to a jurisdiction you can't access, or the text version doesn't belong to this bill. |
+
+<ResponseExample>
+```json Example response
+{
+  "id": "6f3b8d21-0e4a-4b7c-95d6-8a2c1f9e4b03",
+  "external_id": "63410",
+  "title": "HL Bill 57",
+  "publication_type": "Bill",
+  "publication_date": "2026-11-12T00:00:00Z",
+  "is_current": true,
+  "pdf_url": "https://bills.parliament.uk/publications/63410/documents/7342",
+  "html_url": "",
+  "download_url": "https://bills.parliament.uk/publications/63410/documents/7342",
+  "source": "9a7e6b14-2c5d-4f80-b3e1-7d2c8f05a6b9",
+  "has_text": true,
+  "text": "Courts and Tribunals Bill\n\nPart 1\n\n1 Removal of right to elect trial on indictment\n\n..."
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/texts/6f3b8d21-0e4a-4b7c-95d6-8a2c1f9e4b03/" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

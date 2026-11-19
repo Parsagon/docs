@@ -1,0 +1,111 @@
+---
+title: 'List bill events'
+sidebarTitle: 'Events'
+description: 'Retrieve sittings, debates, and other activities on a bill, past and scheduled.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/events/'
+---
+
+import LimitOffsetParams from '/snippets/legislative/limit-offset-params.mdx';
+import LimitOffsetResponse from '/snippets/legislative/limit-offset-response.mdx';
+
+Returns sittings, hearings, debates, and other activities on a bill, oldest first. This includes both past and scheduled events. Events without a date are listed last.
+
+Votes aren't events. To retrieve them, use [List bill votes](/api-reference/legislative/list-votes).
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="status" type="string">
+  Only return events with this status, such as `Scheduled`. Must match the event's `status` exactly.
+</ParamField>
+
+<ParamField query="since" type="string">
+  Only return events dated at or after this time (ISO 8601).
+</ParamField>
+
+<ParamField query="before" type="string">
+  Only return events dated before this time (ISO 8601).
+</ParamField>
+
+<LimitOffsetParams />
+
+## Response
+
+<LimitOffsetResponse />
+
+<ResponseField name="results" type="array">
+  Array of events, oldest first.
+
+  <Expandable title="Event fields">
+    <ResponseField name="id" type="string">
+      UUID of the event.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The event's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="date" type="string | null">
+      When the event happened or is scheduled (ISO 8601).
+    </ResponseField>
+    <ResponseField name="house" type="string">
+      The house holding the event. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="event_type" type="string">
+      Type of event, such as `"Committee stage"`. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Title of the event. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Status of the event. Usually one of `"Scheduled"`, `"Held"`, `"Cancelled"`, or `"Postponed"`. If the legislature's status doesn't map to one of these, this is the legislature's own status. Empty if unknown.
+    </ResponseField>
+    <ResponseField name="result" type="string">
+      Outcome of the event. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the event on the legislature's website. Empty if unavailable.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | A filter has an invalid value, such as a malformed date. |
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, or the bill belongs to a jurisdiction you can't access. |
+
+<ResponseExample>
+```json Example response
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "3a8c1f60-5e2b-4d97-b0a4-6f1e8c3d7b25",
+      "external_id": "18698",
+      "date": "2026-11-17T00:00:00Z",
+      "house": "Commons",
+      "event_type": "Committee stage",
+      "title": "Committee stage: 3rd sitting",
+      "status": "Scheduled",
+      "result": "",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/21266"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/events/?status=Scheduled" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

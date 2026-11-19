@@ -64,7 +64,7 @@ The Quick Search endpoint runs a search synchronously and returns results direct
 
   <Expandable title="Search result fields">
     <ResponseField name="uuid" type="string | null">
-      Unique identifier of the source. Use it with [Get legislative source](/api-reference/endpoint/legislative-source) to retrieve bill data for `"LEGISLATION"` sources. May be `null` for results that Parsagon does not store as sources, and is always `null` for the built-in example results returned in test mode.
+      Unique identifier of the source. Use it with [Get legislative source](/api-reference/legislative/get-source) to retrieve bill data for `"LEGISLATION"` sources. May be `null` for results that Parsagon does not store as sources, and is always `null` for the built-in example results returned in test mode.
     </ResponseField>
     <ResponseField name="url" type="string">
       URL of the source document.
@@ -86,7 +86,7 @@ The Quick Search endpoint runs a search synchronously and returns results direct
 
       - `"ARTICLE"`: press releases, announcements, generic articles, and similar content.
       - `"LAW"`: bills and legislation.
-      - `"LEGISLATION"`: records from Parsagon's bill tracker, such as bill text versions, amendments, debate speeches, and divisions (votes). These sources have associated bill data. Pass the result's `uuid` to [Get legislative source](/api-reference/endpoint/legislative-source) to retrieve it.
+      - `"LEGISLATION"`: records from Parsagon's bill tracker, such as bill text versions, amendments, debate speeches, and divisions (votes). These sources have associated bill data. Pass the result's `uuid` to [Get legislative source](/api-reference/legislative/get-source) to retrieve it.
     </ResponseField>
     <ResponseField name="extra_data" type="object">
       For `"LAW"` documents, an object containing additional legislative metadata. May include `status`, `last_action`, and `last_action_date` — not all fields are present on every document. For non-`"LAW"` documents, this is usually empty.

@@ -1,0 +1,164 @@
+---
+title: 'List bill votes'
+sidebarTitle: 'Votes'
+description: 'Retrieve the divisions on a bill and the decisions on its amendments, oldest first.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/votes/'
+---
+
+import LimitOffsetParams from '/snippets/legislative/limit-offset-params.mdx';
+import LimitOffsetResponse from '/snippets/legislative/limit-offset-response.mdx';
+
+Returns two kinds of records for a bill, oldest first:
+
+- **Votes** (`kind: "vote"`): divisions, where members' votes are counted, and other recorded votes.
+- **Decisions** (`kind: "decision"`): decisions on amendments made without a vote, such as an amendment being withdrawn or not moved.
+
+Records without a date are listed last.
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="kind" type="string">
+  Only return records of this kind: `vote` or `decision`.
+</ParamField>
+
+<ParamField query="house" type="string">
+  Only return records from this house, such as `Commons`. Must match the record's `house` exactly.
+</ParamField>
+
+<ParamField query="since" type="string">
+  Only return records dated at or after this time (ISO 8601).
+</ParamField>
+
+<ParamField query="before" type="string">
+  Only return records dated before this time (ISO 8601).
+</ParamField>
+
+<LimitOffsetParams />
+
+## Response
+
+<LimitOffsetResponse />
+
+<ResponseField name="results" type="array">
+  Array of votes and decisions, oldest first.
+
+  <Expandable title="Vote fields">
+    <ResponseField name="id" type="string">
+      UUID of the record.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The record's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="kind" type="string">
+      `"vote"` or `"decision"`.
+    </ResponseField>
+    <ResponseField name="source_name" type="string">
+      Where Parsagon collected the record from, such as `"commons_votes"` or `"uk_amendment_decision"`.
+    </ResponseField>
+    <ResponseField name="house" type="string">
+      The house where the vote or decision happened.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Title of the vote or decision, such as `"Amendment 9 - Withdrawn"`.
+    </ResponseField>
+    <ResponseField name="date" type="string | null">
+      When the vote or decision happened (ISO 8601).
+    </ResponseField>
+    <ResponseField name="ayes" type="integer | null">
+      Number of votes in favor. `null` for decisions and for votes recorded without counts.
+    </ResponseField>
+    <ResponseField name="noes" type="integer | null">
+      Number of votes against. `null` for decisions and for votes recorded without counts.
+    </ResponseField>
+    <ResponseField name="result" type="string">
+      Outcome, as given by the legislature, such as `"Not content"` or `"Withdrawn"`. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="is_committee" type="boolean">
+      Whether the vote happened in a committee.
+    </ResponseField>
+    <ResponseField name="linked_amendment" type="string | null">
+      `id` of the amendment the record is about, from [List bill amendments](/api-reference/legislative/list-amendments). `null` if the record isn't about an amendment or the amendment isn't available.
+    </ResponseField>
+    <ResponseField name="linked_amendment_no" type="string">
+      Number of the amendment the record is about. Empty if the record isn't about an amendment.
+    </ResponseField>
+    <ResponseField name="subject_text" type="string">
+      What the vote or decision is about, such as the text of the amendment. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the record on the legislature's website. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="source" type="string | null">
+      `uuid` of the `"LEGISLATION"` source for the record. `null` if Parsagon hasn't created one.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | A filter has an invalid value, such as a malformed date or an unknown `kind`. |
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, or the bill belongs to a jurisdiction you can't access. |
+
+<ResponseExample>
+```json Example response
+{
+  "count": 2,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "8f4b2d6a-0c1e-4a73-9b58-e2d7f6a1c394",
+      "external_id": "3412",
+      "kind": "vote",
+      "source_name": "lords_votes",
+      "house": "Lords",
+      "title": "Amendment 7",
+      "date": "2026-11-09T00:00:00Z",
+      "ayes": 150,
+      "noes": 200,
+      "result": "Not content",
+      "is_committee": false,
+      "linked_amendment": "e5a9c3b7-2d4f-4e18-a6c0-9b1d8f7e3a52",
+      "linked_amendment_no": "7",
+      "subject_text": "Leave out clause 3",
+      "upstream_url": "https://votes.parliament.uk/votes/lords/division/3412",
+      "source": "6c2e8a14-9f3b-4d07-b5a1-0e7d4c9f2b86"
+    },
+    {
+      "id": "d1f7a3c9-4e8b-4b26-8c05-7a3e9d2f1b40",
+      "external_id": "21266:9925",
+      "kind": "decision",
+      "source_name": "uk_amendment_decision",
+      "house": "Lords",
+      "title": "Amendment 9 - Withdrawn",
+      "date": "2026-11-10T00:00:00Z",
+      "ayes": null,
+      "noes": null,
+      "result": "Withdrawn",
+      "is_committee": false,
+      "linked_amendment": null,
+      "linked_amendment_no": "9",
+      "subject_text": "This amendment would require the Lord Chancellor to publish an impact assessment.",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/21266/amendments/9925",
+      "source": null
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/votes/?kind=vote" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

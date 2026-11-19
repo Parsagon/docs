@@ -1,0 +1,153 @@
+---
+title: 'List bill speeches'
+sidebarTitle: 'Speeches'
+description: 'Retrieve contributions to debates on a bill, with their text, oldest first.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/speeches/'
+---
+
+import LimitOffsetParams from '/snippets/legislative/limit-offset-params.mdx';
+import LimitOffsetResponse from '/snippets/legislative/limit-offset-response.mdx';
+
+Returns contributions to debates on a bill, with their full text, ordered by sitting date, oldest first. Speeches without a sitting date are listed last.
+
+Speeches come from the legislature's official record of debates. Some legislatures publish this record weeks after the debate. For example, Dutch speeches are published about 6 weeks after the debate.
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="house" type="string">
+  Only return speeches from this house, such as `Commons`. Must match the speech's `house` exactly.
+</ParamField>
+
+<ParamField query="kind" type="string">
+  Only return speeches of this kind: `COMMITMENT`, `RESPONSE`, or `EVIDENCE`. See the `kind` response field.
+</ParamField>
+
+<ParamField query="is_minister" type="boolean">
+  Set to `true` to only return speeches by ministers, or `false` to exclude them.
+</ParamField>
+
+<ParamField query="since" type="string">
+  Only return speeches with a sitting date at or after this time (ISO 8601).
+</ParamField>
+
+<ParamField query="before" type="string">
+  Only return speeches with a sitting date before this time (ISO 8601).
+</ParamField>
+
+<LimitOffsetParams />
+
+## Response
+
+<LimitOffsetResponse />
+
+<ResponseField name="results" type="array">
+  Array of speeches, oldest first.
+
+  <Expandable title="Speech fields">
+    <ResponseField name="id" type="string">
+      UUID of the speech.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The speech's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="debate_external_id" type="string">
+      The ID of the debate in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="debate_title" type="string">
+      Title of the debate.
+    </ResponseField>
+    <ResponseField name="house" type="string">
+      The house where the debate happened. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="sitting_date" type="string | null">
+      Date of the sitting (ISO 8601).
+    </ResponseField>
+    <ResponseField name="speaker_name" type="string">
+      Name of the speaker.
+    </ResponseField>
+    <ResponseField name="speaker_party" type="string">
+      The speaker's party, as a short key such as `"lab"`. Empty if unknown.
+    </ResponseField>
+    <ResponseField name="external_member_id" type="string">
+      The speaker's member ID in the legislature's own system. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="ministerial_role" type="string">
+      The speaker's ministerial role. Empty if the speaker isn't a minister.
+    </ResponseField>
+    <ResponseField name="is_minister" type="boolean">
+      Whether the speaker is a minister.
+    </ResponseField>
+    <ResponseField name="kind" type="string">
+      Classification of a minister's speech:
+
+      - `"COMMITMENT"`: the minister makes a commitment, such as promising to write to members or bring forward an amendment.
+      - `"RESPONSE"`: a substantive response from the minister.
+      - `"EVIDENCE"`: a question in an evidence session.
+
+      Empty for other speeches.
+    </ResponseField>
+    <ResponseField name="commitment_phrase" type="string">
+      The phrase that marks the commitment, such as `"I will write"` or `"I can confirm"`. Empty if the speech isn't a commitment.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the speech in the legislature's official record.
+    </ResponseField>
+    <ResponseField name="source" type="string | null">
+      `uuid` of the `"LEGISLATION"` source for the speech. `null` if Parsagon hasn't created one.
+    </ResponseField>
+    <ResponseField name="text" type="string | null">
+      Full text of the speech. `null` if the text isn't available.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `400 Bad Request` | A filter has an invalid value, such as a malformed date. |
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, or the bill belongs to a jurisdiction you can't access. |
+
+<ResponseExample>
+```json Example response
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "a2c6e0f4-8b1d-4f39-9e75-3d0b6a8c2f17",
+      "external_id": "C1A2B3D4-0001",
+      "debate_external_id": "8E1F2A3B-4C5D-6E7F-8091-A2B3C4D5E6F7",
+      "debate_title": "Courts and Tribunals Bill",
+      "house": "Commons",
+      "sitting_date": "2026-11-10T00:00:00Z",
+      "speaker_name": "Sarah Sackman",
+      "speaker_party": "lab",
+      "external_member_id": "5276",
+      "ministerial_role": "Minister of State (Ministry of Justice)",
+      "is_minister": true,
+      "kind": "COMMITMENT",
+      "commitment_phrase": "I can confirm",
+      "upstream_url": "https://hansard.parliament.uk/Commons/2026-11-10/debates/8E1F2A3B-4C5D-6E7F-8091-A2B3C4D5E6F7/debate#contribution-C1A2B3D4-0001",
+      "source": "4b9d1e7a-6c3f-4a82-b0e5-2f8c7d1a9e36",
+      "text": "I can confirm that we will bring forward an amendment on Report."
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/speeches/?is_minister=true" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>

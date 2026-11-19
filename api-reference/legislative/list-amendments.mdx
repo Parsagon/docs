@@ -1,0 +1,164 @@
+---
+title: 'List bill amendments'
+sidebarTitle: 'Amendments'
+description: 'Retrieve the amendments tabled to a bill, with their text and sponsors.'
+api: 'GET https://parsagon.io/api/legislative/v1/bills/{bill_id}/amendments/'
+---
+
+import LimitOffsetParams from '/snippets/legislative/limit-offset-params.mdx';
+import LimitOffsetResponse from '/snippets/legislative/limit-offset-response.mdx';
+
+Returns the amendments tabled to a bill, with their text and sponsors.
+
+Votes on amendments, and decisions such as an amendment being withdrawn or not moved, are listed by [List bill votes](/api-reference/legislative/list-votes).
+
+## Path parameters
+
+<ParamField path="bill_id" type="string" required>
+  The `id` of the bill.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="house" type="string">
+  Only return amendments tabled in this house, such as `Lords`. Must match the amendment's `house` exactly.
+</ParamField>
+
+<ParamField query="stage" type="string">
+  Only return amendments tabled at this stage, such as `Committee stage`. Must match the amendment's `stage` exactly.
+</ParamField>
+
+<ParamField query="marshalled_no" type="string">
+  Only return amendments with this number, such as `17`.
+</ParamField>
+
+<LimitOffsetParams />
+
+## Response
+
+<LimitOffsetResponse />
+
+<ResponseField name="results" type="array">
+  Array of amendments.
+
+  <Expandable title="Amendment fields">
+    <ResponseField name="id" type="string">
+      UUID of the amendment.
+    </ResponseField>
+    <ResponseField name="external_id" type="string">
+      The amendment's ID in the legislature's own system.
+    </ResponseField>
+    <ResponseField name="stage" type="string">
+      The stage the amendment was tabled at. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="house" type="string">
+      The house the amendment was tabled in. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="marshalled_no" type="string">
+      The amendment's number on the legislature's list of amendments. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="amendment_type" type="string">
+      Type of amendment, as given by the legislature. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="summary_text" type="string">
+      Text of the amendment. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="explanatory_text_prefix" type="string">
+      Heading of the explanatory statement. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="explanatory_text" type="string">
+      The explanatory statement for the amendment. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="decision" type="string">
+      The decision on the amendment, such as `"Withdrawn"`. Empty if no decision has been made.
+    </ResponseField>
+    <ResponseField name="decision_explanation" type="string">
+      Explanation of the decision. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="decision_changed_at" type="string | null">
+      When Parsagon detected a change to the decision (ISO 8601).
+    </ResponseField>
+    <ResponseField name="government_tag" type="string">
+      `"Government"` for a government amendment, or `"Non-government"`. Empty if unknown.
+    </ResponseField>
+    <ResponseField name="upstream_url" type="string">
+      URL of the amendment on the legislature's website. Empty if unavailable.
+    </ResponseField>
+    <ResponseField name="source" type="string | null">
+      `uuid` of the `"LEGISLATION"` source for the amendment. `null` if Parsagon hasn't created one.
+    </ResponseField>
+    <ResponseField name="sponsors" type="array">
+      The members who tabled the amendment.
+
+      <Expandable title="Sponsor fields">
+        <ResponseField name="name" type="string">
+          Name of the sponsor.
+        </ResponseField>
+        <ResponseField name="party" type="string">
+          The sponsor's party, as a short key such as `"ld"`. Empty if unknown.
+        </ResponseField>
+        <ResponseField name="member_from" type="string">
+          The sponsor's constituency or other affiliation. Empty if unavailable.
+        </ResponseField>
+        <ResponseField name="is_lead" type="boolean">
+          Whether the sponsor is the lead sponsor.
+        </ResponseField>
+        <ResponseField name="external_member_id" type="string">
+          The sponsor's member ID in the legislature's own system. Empty if unavailable.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `403 Forbidden` | Your account doesn't have a valid subscription or hasn't accepted the Terms of Service. |
+| `404 Not Found` | No bill has this `id`, or the bill belongs to a jurisdiction you can't access. |
+
+<ResponseExample>
+```json Example response
+{
+  "count": 1,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": "c41d7e93-8b2a-4f6c-a05e-1d9b3f7c2e84",
+      "external_id": "9921",
+      "stage": "Committee stage",
+      "house": "Lords",
+      "marshalled_no": "17",
+      "amendment_type": "EditBillBody",
+      "summary_text": "Leave out clause 1",
+      "explanatory_text_prefix": "Member's explanatory statement",
+      "explanatory_text": "This amendment removes the clause restricting the right to elect trial on indictment.",
+      "decision": "",
+      "decision_explanation": "",
+      "decision_changed_at": null,
+      "government_tag": "Non-government",
+      "upstream_url": "https://bills.parliament.uk/bills/4083/stages/20012/amendments/9921",
+      "source": "3f1c9a52-7d4e-4b8a-9c61-2e5b0d8f4a17",
+      "sponsors": [
+        {
+          "name": "Lord Beith",
+          "party": "ld",
+          "member_from": "",
+          "is_lead": true,
+          "external_member_id": "1"
+        }
+      ]
+    }
+  ]
+}
+```
+</ResponseExample>
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://parsagon.io/api/legislative/v1/bills/b8e2d4f0-1a3c-4e5b-8d7f-6c9a0b2e4d61/amendments/?house=Lords" \
+  -H "Authorization: Token YOUR_API_KEY_HERE"
+```
+</RequestExample>
